@@ -83,10 +83,10 @@
 .root.root[data-campus-shell] { --campus-action:var(--school-primary,#355745); }
 .root.root .environment { background:radial-gradient(ellipse at top right,#323d2c,#131a16 55%,#111813); }
 .root.root[data-campus-scene] .environment { background:var(--campus-scene-shade,linear-gradient(90deg,#0c1710e8,#0f1a13ba 40%,#111a1573 73%,#161d1766)),var(--campus-scene-floor,linear-gradient(0deg,#101711ee,#111a1440 50%,#111a1410)),var(--campus-scene-image) center/cover no-repeat; }
-/* Secondary menu rooms keep daylight and depth outside their opaque task panels. */
-.root.root:is([data-campus-family="commons"],[data-campus-family="library"],[data-campus-family="seminar"],[data-campus-family="services"],[data-campus-family="courtyard"]):is([data-campus-mode="scenic"],[data-campus-mode="header"]) {
-  --campus-scene-shade:linear-gradient(90deg,#0c1710db 0%,#0f1a138c 42%,#111a1533 75%,#161d1729 100%);
-  --campus-scene-floor:linear-gradient(0deg,#101711e0 0%,#111a1429 42%,#111a140d 100%);
+/* Campus rooms keep daylight and depth outside their opaque task panels. */
+.root.root[data-campus-scene]:is([data-campus-mode="scenic"],[data-campus-mode="header"]) {
+  --campus-scene-shade:linear-gradient(90deg,#0c171099 0%,#0f1a1366 42%,#111a1514 75%,#161d170a 100%);
+  --campus-scene-floor:linear-gradient(0deg,#10171170 0%,#111a1410 42%,#111a1400 100%);
 }
 .root.root[data-campus-mode="header"] .environment { position:absolute;bottom:auto;height:var(--campus-header-height,420px);mask-image:var(--campus-header-mask,linear-gradient(#000 55%,transparent)); }
 .root.root[data-campus-mode="focus"] .environment { opacity:.38; }

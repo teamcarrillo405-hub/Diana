@@ -1,4 +1,4 @@
-.root { min-height:100dvh; color:#f4f1e7; color-scheme:dark; font-family:var(--font-lexend),sans-serif; background:linear-gradient(90deg,#071610eb 0%,#0c1918b8 48%,#0c191847 100%),var(--campus-entry-image,url('/assets/today-now/diana-signature-studio-v1-1678.webp')) 65% center/cover fixed; }
+.root { min-height:100dvh; color:#f4f1e7; color-scheme:dark; font-family:var(--font-lexend),sans-serif; background:linear-gradient(90deg,#071610a6 0%,#0c19189e 32%,#0c191847 58%,#0c19180f 100%),var(--campus-entry-image,url('/assets/today-now/diana-signature-studio-v1-1678.webp')) 65% center/cover fixed; }
 .root * { box-sizing:border-box; }
 .skip { position:absolute; z-index:20; top:8px; left:16px; transform:translateY(-160%); background:#f4f1e7; color:#10251c; padding:12px 18px; }
 .skip:focus { transform:none; }
@@ -16,7 +16,7 @@
 .welcome h2 { font:800 italic clamp(42px,5.5vw,76px)/1.02 var(--font-saira-condensed),sans-serif; text-transform:uppercase; margin:20px 0; }
 .welcome > p:last-child { font-size:16px; line-height:1.8; color:#e3e8dd; }
 .form { width:100%; padding:clamp(24px,3vw,38px); background:#101f1af5; border:1px solid #d6c59a73; box-shadow:0 20px 64px #0005; }
-.hero { margin-bottom:32px; max-width:800px; padding:20px 0; }
+.hero { margin-bottom:32px; max-width:800px; }
 .hero h1,.form h1 { font:800 italic clamp(36px,4vw,54px)/1.05 var(--font-saira-condensed),sans-serif; text-transform:uppercase; margin:0 0 16px; color:#f4f1e7; }
 .hero p { font-size:16px; line-height:1.8; color:#e0e7dc; margin:0; }
 .reading { background:#101f1af7; border:1px solid #d6c59a50; padding:clamp(24px,4vw,48px); }
@@ -53,5 +53,5 @@
 .root :is(a,button,input,select,textarea):focus-visible { outline:3px solid #e2ce9f; outline-offset:4px; }
 .root button:disabled { opacity:.55; cursor:wait; }
 @media(max-width:900px) { .entryMain { grid-template-columns:minmax(0,1fr) minmax(0,440px); gap:30px; width:calc(100% - 48px); }.welcome h2{font-size:48px;} }
-@media(max-width:680px) { .header { min-height:76px; padding:12px 20px; gap:12px; }.header nav { order:3; width:100%; gap:18px; }.header nav a{font-size:20px;}.header .cta { padding:10px 12px; }.main { width:calc(100% - 32px); padding:28px 0 40px; }.entryMain { display:block; width:calc(100% - 32px); padding:28px 0 40px; min-height:calc(100dvh - 150px); }.welcome{display:none;}.form { padding:28px 22px; }.root :global(.dpl-sub-control) { grid-template-columns:1fr; }.root{background-attachment:scroll;background-position:62% top;}.footer{gap:20px;}.brand{font-size:38px;} }
+@media(max-width:680px) { .header { min-height:76px; padding:12px 20px; gap:12px; }.header nav { order:3; width:100%; gap:18px; }.header nav a{font-size:20px;}.header .cta { padding:10px 12px; }.main { width:calc(100% - 32px); padding:28px 0 40px; }.entryMain { display:block; width:calc(100% - 32px); padding:28px 0 40px; min-height:calc(100dvh - 150px); }.welcome{display:none;}.form { padding:28px 22px; }.root :global(.dpl-sub-control) { grid-template-columns:1fr; }.root{background-attachment:scroll;background-position:62% top;}.root[data-entry-shell]{background-image:linear-gradient(90deg,#07161033,#0c19180d),var(--campus-entry-image,url('/assets/today-now/diana-signature-studio-v1-1678.webp'));}.footer{gap:20px;}.brand{font-size:38px;} }
 @media(prefers-reduced-motion:reduce) { .root * { scroll-behavior:auto; } }

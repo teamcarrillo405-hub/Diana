@@ -1,4 +1,4 @@
-.page.page { min-height:100dvh; padding-bottom:48px; color:#f4f1e7; --ink:#f4f1e7; --muted:#c5d3c4; color-scheme:dark; font-family:var(--font-lexend),sans-serif; background:linear-gradient(90deg,#0a1919db,#0a1919a6),var(--campus-services-image,url('/assets/today-now/diana-signature-studio-v1-1678.webp')) center/cover fixed; }
+.page.page { min-height:100dvh; padding-bottom:48px; color:#f4f1e7; --ink:#f4f1e7; --muted:#c5d3c4; color-scheme:dark; font-family:var(--font-lexend),sans-serif; background:linear-gradient(90deg,#0a191940,#0a191914),var(--campus-services-image,url('/assets/today-now/diana-signature-studio-v1-1678.webp')) center/cover fixed; }
 .page.page * { box-sizing:border-box; }
 .page .layout,.page .connectionLayout { display:grid; grid-template-columns:minmax(0,1fr); width:calc(100% - 64px); max-width:760px; margin:40px auto 0; border:1px solid #d6c59a73; border-radius:0; background:#101f1af5; box-shadow:0 20px 64px #0004; overflow:hidden; }
 .page .connectionLayout { max-width:1000px; gap:28px; padding:38px; }

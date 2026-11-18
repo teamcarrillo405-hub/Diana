@@ -1,0 +1,117 @@
+{
+  "version": "auth-recovery-provider-integration-v1",
+  "run": "auth-recovery-2026-11-18T15-01-07-071Z",
+  "base": "http://localhost:3140",
+  "startedAt": "2026-11-18T15:01:07.072Z",
+  "scope": "Ready-form preview only: actual recovery-token verification on a disposable owner, without password updates or mail.",
+  "localOriginNote": "Use localhost consistently. Mixing 127.0.0.1 with the local runtime callback redirect to localhost separates host-only cookies; no cookie protections are bypassed.",
+  "checks": [
+    {
+      "name": "local-production-preflight",
+      "ok": true,
+      "loopback": true,
+      "loginAvailable": true,
+      "noDevelopmentClientObserved": true,
+      "existingProviderConfigurationPresent": true,
+      "serverRecoveryCapability": "verified by actual callback later in this gate"
+    },
+    {
+      "name": "separate-disposable-owner",
+      "ok": true,
+      "separateOwner": true,
+      "ownershipMarkerVerified": true,
+      "mailSent": false
+    },
+    {
+      "name": "desktop-untrusted-session-cannot-reset",
+      "ok": true,
+      "deniedWithoutProof": true,
+      "screenshot": "desktop-reset-unavailable.png"
+    },
+    {
+      "name": "desktop-actual-recovery-token",
+      "ok": true,
+      "providerTokenVerified": true,
+      "requestHost": "localhost",
+      "finalHost": "localhost",
+      "hostConsistent": true,
+      "cleanResetUrl": true,
+      "httpOnlyProof": true,
+      "sameSiteLax": true,
+      "preexistingStaleForm": true,
+      "mailSent": false,
+      "screenshot": "desktop-reset-ready.png"
+    },
+    {
+      "name": "phone-untrusted-session-cannot-reset",
+      "ok": true,
+      "deniedWithoutProof": true,
+      "screenshot": "phone-reset-unavailable.png"
+    },
+    {
+      "name": "phone-actual-recovery-token",
+      "ok": true,
+      "providerTokenVerified": true,
+      "requestHost": "localhost",
+      "finalHost": "localhost",
+      "hostConsistent": true,
+      "cleanResetUrl": true,
+      "httpOnlyProof": true,
+      "sameSiteLax": true,
+      "preexistingStaleForm": true,
+      "mailSent": false,
+      "screenshot": "phone-reset-ready.png"
+    }
+  ],
+  "screenshots": [
+    {
+      "viewport": "desktop",
+      "state": "reset-unavailable",
+      "file": "desktop-reset-unavailable.png",
+      "overflow": false,
+      "method": null,
+      "scene": "entry"
+    },
+    {
+      "viewport": "desktop",
+      "state": "reset-ready",
+      "file": "desktop-reset-ready.png",
+      "overflow": false,
+      "method": "post",
+      "scene": "entry"
+    },
+    {
+      "viewport": "phone",
+      "state": "reset-unavailable",
+      "file": "phone-reset-unavailable.png",
+      "overflow": false,
+      "method": null,
+      "scene": "entry"
+    },
+    {
+      "viewport": "phone",
+      "state": "reset-ready",
+      "file": "phone-reset-ready.png",
+      "overflow": false,
+      "method": "post",
+      "scene": "entry"
+    }
+  ],
+  "cleanup": {
+    "status": "deleted-and-verified",
+    "syntheticOnly": true,
+    "exactOwnershipMarkerChecked": true
+  },
+  "exclusions": [
+    "No reset email was requested or sent. SMTP, email delivery, redirect allow-list and email-template publication remain unverified.",
+    "No real student account, Google connection, tutoring provider, AI service or paid media was used.",
+    "Only passing checks can establish token_hash recovery. The emailed same-browser PKCE round trip is outside this gate."
+  ],
+  "finishedAt": "2026-11-18T15:01:15.404Z",
+  "totals": {
+    "checks": 6,
+    "passed": 6,
+    "rejected": 0,
+    "screenshots": 4
+  }
+}

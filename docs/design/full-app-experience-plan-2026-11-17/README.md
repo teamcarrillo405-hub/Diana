@@ -6,7 +6,7 @@ November 17, 2026 (America/Los_Angeles). Source baseline: `25477d594afdd83a7ac5b
 
 **Start with shared identity/loading and the complete Sign-in family.** Preserve the accepted Lobby, Work, Classes and Calendar rooms. Update the remaining pages and their deeper states rather than redesigning those four tabs again.
 
-**Implementation update:** The application/design work is now implemented and locally verified. [Implementation, evidence and release boundary](IMPLEMENTATION.md) · [20 desktop/phone preview pairs, no sign-in](previews/index.html). Production remains unchanged pending visual review and external email verification. The inventory below preserves the original planning baseline. Paid Higgsfield credits spent: 0.
+**Implementation update:** The application/design work is now implemented and locally verified. [Implementation, evidence and release boundary](IMPLEMENTATION.md) · [20 desktop/phone preview pairs, no sign-in](previews/index.html). The owner approved the visual direction on November 18 with a brighter-background correction, now implemented. [Approved design standard](DESIGN-STANDARD.md). Production remains unchanged; external email verification is still open. The inventory below preserves the original planning baseline. Paid Higgsfield credits spent: 0.
 
 ## Read the plan
 

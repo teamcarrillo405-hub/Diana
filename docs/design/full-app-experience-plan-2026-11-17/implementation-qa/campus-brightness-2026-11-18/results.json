@@ -1,0 +1,1749 @@
+{
+  "version": "campus-experience-browser-qa-v1",
+  "startedAt": "2026-11-18T14:53:21.162Z",
+  "base": "http://127.0.0.1:3140",
+  "run": "campus-brightness-2026-11-18",
+  "scope": "Brightness correction only: current gallery scenes and entry/setup states at desktop and phone sizes. No unrelated interaction or subject regression rerun.",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "results": [
+    {
+      "slug": "sign-in",
+      "path": "/login",
+      "family": "entry",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Welcome back",
+      "scene": "entry",
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 1240,
+      "finalPath": "/login",
+      "screenshot": "desktop-sign-in.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "signup",
+      "path": "/signup",
+      "family": "entry",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Create account",
+      "scene": "entry",
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 1240,
+      "finalPath": "/signup",
+      "screenshot": "desktop-signup.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "forgot-password",
+      "path": "/forgot-password",
+      "family": "entry",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Reset password",
+      "scene": "entry",
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 1240,
+      "finalPath": "/forgot-password",
+      "screenshot": "desktop-forgot-password.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "offline",
+      "path": "/offline",
+      "family": "system offline",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Saved study packs",
+      "scene": "work",
+      "mode": "focus",
+      "missingVisibleImages": [],
+      "mainWidth": 1120,
+      "finalPath": "/offline",
+      "screenshot": "desktop-offline.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "lobby-now",
+      "path": "/dashboard?view=now",
+      "family": "Lobby",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1425,
+      "heading": "Lobby",
+      "scene": null,
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 1425,
+      "finalPath": "/dashboard",
+      "screenshot": "desktop-lobby-now.png",
+      "productCapture": "desktop-lobby-now-product.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "work",
+      "path": "/assignments",
+      "family": "Work",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Work",
+      "scene": "work",
+      "mode": "scenic",
+      "missingVisibleImages": [],
+      "mainWidth": 1440,
+      "finalPath": "/assignments",
+      "screenshot": "desktop-work.png",
+      "productCapture": "desktop-work-product.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "classes",
+      "path": "/classes",
+      "family": "Classes",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Classes",
+      "scene": "classes",
+      "mode": "scenic",
+      "missingVisibleImages": [],
+      "mainWidth": 1440,
+      "finalPath": "/classes",
+      "screenshot": "desktop-classes.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "calendar",
+      "path": "/calendar",
+      "family": "Calendar",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Calendar",
+      "scene": "calendar",
+      "mode": "scenic",
+      "missingVisibleImages": [],
+      "mainWidth": 1440,
+      "finalPath": "/calendar",
+      "screenshot": "desktop-calendar.png",
+      "productCapture": "desktop-calendar-product.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "more-study",
+      "path": "/more?section=study",
+      "family": "commons",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "More",
+      "scene": "commons",
+      "mode": "scenic",
+      "missingVisibleImages": [],
+      "mainWidth": 1440,
+      "finalPath": "/more",
+      "screenshot": "desktop-more-study.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "note-detail",
+      "path": "/notes/e5363031-0faf-40b1-9ec7-167f51292a7f",
+      "family": "library focus",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Linear relationships notes",
+      "scene": "library",
+      "mode": "focus",
+      "missingVisibleImages": [],
+      "mainWidth": 1400,
+      "finalPath": "/notes/e5363031-0faf-40b1-9ec7-167f51292a7f",
+      "screenshot": "desktop-note-detail.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "quiz-hub",
+      "path": "/study",
+      "family": "seminar",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Quiz",
+      "scene": "seminar",
+      "mode": "scenic",
+      "missingVisibleImages": [],
+      "mainWidth": 1440,
+      "finalPath": "/study",
+      "screenshot": "desktop-quiz-hub.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "practice",
+      "path": "/study-artifacts/4bd3f184-3a2a-4938-af7a-dce0254fb36c",
+      "family": "seminar focus",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Linear relationships practice",
+      "scene": "seminar",
+      "mode": "focus",
+      "missingVisibleImages": [],
+      "mainWidth": 1440,
+      "finalPath": "/study-artifacts/4bd3f184-3a2a-4938-af7a-dce0254fb36c",
+      "screenshot": "desktop-practice.png",
+      "productCapture": "desktop-practice-product.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "check-in-history",
+      "path": "/wellness",
+      "family": "courtyard",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Check-in history",
+      "scene": "courtyard",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 1368,
+      "finalPath": "/wellness",
+      "screenshot": "desktop-check-in-history.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings?section=profile",
+      "family": "services",
+      "viewport": "desktop",
+      "ok": false,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Profile",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 800,
+      "finalPath": "/settings",
+      "screenshot": "desktop-settings-profile.png",
+      "error": "Browser page error occurred.",
+      "pageErrors": [
+        "Minified React error #418; visit [url] for the full message or use the non-minified dev environment for full errors and additional helpful warnings.",
+        "Cannot read properties of null (reading 'parentNode')"
+      ],
+      "assetErrors": []
+    },
+    {
+      "slug": "settings-tutor",
+      "path": "/settings?section=tutor",
+      "family": "services",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Diana coaching",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 800,
+      "finalPath": "/settings",
+      "screenshot": "desktop-settings-tutor.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "settings-security",
+      "path": "/settings?section=security",
+      "family": "services",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Account security",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 800,
+      "finalPath": "/settings",
+      "screenshot": "desktop-settings-security.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "onboarding-personalize",
+      "path": "/onboarding?sdState=personalize",
+      "family": "entry onboarding",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Make it yours",
+      "scene": "services",
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 760,
+      "finalPath": "/onboarding",
+      "screenshot": "desktop-onboarding-personalize.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "onboarding-connect",
+      "path": "/onboarding?sdState=connect",
+      "family": "entry onboarding",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Connect your school",
+      "scene": "services",
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 1000,
+      "finalPath": "/onboarding",
+      "screenshot": "desktop-onboarding-connect.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "sign-in",
+      "path": "/login",
+      "family": "entry",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Welcome back",
+      "scene": "entry",
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 358,
+      "finalPath": "/login",
+      "screenshot": "phone-sign-in.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "signup",
+      "path": "/signup",
+      "family": "entry",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Create account",
+      "scene": "entry",
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 358,
+      "finalPath": "/signup",
+      "screenshot": "phone-signup.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "forgot-password",
+      "path": "/forgot-password",
+      "family": "entry",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Reset password",
+      "scene": "entry",
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 358,
+      "finalPath": "/forgot-password",
+      "screenshot": "phone-forgot-password.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "offline",
+      "path": "/offline",
+      "family": "system offline",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Saved study packs",
+      "scene": "work",
+      "mode": "focus",
+      "missingVisibleImages": [],
+      "mainWidth": 390,
+      "finalPath": "/offline",
+      "screenshot": "phone-offline.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "lobby-now",
+      "path": "/dashboard?view=now",
+      "family": "Lobby",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Lobby",
+      "scene": null,
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 366,
+      "finalPath": "/dashboard",
+      "screenshot": "phone-lobby-now.png",
+      "productCapture": "phone-lobby-now-product.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "work",
+      "path": "/assignments",
+      "family": "Work",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Work",
+      "scene": "work",
+      "mode": "scenic",
+      "missingVisibleImages": [],
+      "mainWidth": 390,
+      "finalPath": "/assignments",
+      "screenshot": "phone-work.png",
+      "productCapture": "phone-work-product.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "classes",
+      "path": "/classes",
+      "family": "Classes",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Classes",
+      "scene": "classes",
+      "mode": "scenic",
+      "missingVisibleImages": [],
+      "mainWidth": 390,
+      "finalPath": "/classes",
+      "screenshot": "phone-classes.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "calendar",
+      "path": "/calendar",
+      "family": "Calendar",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Calendar",
+      "scene": "calendar",
+      "mode": "scenic",
+      "missingVisibleImages": [],
+      "mainWidth": 390,
+      "finalPath": "/calendar",
+      "screenshot": "phone-calendar.png",
+      "productCapture": "phone-calendar-product.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "more-study",
+      "path": "/more?section=study",
+      "family": "commons",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "More",
+      "scene": "commons",
+      "mode": "scenic",
+      "missingVisibleImages": [],
+      "mainWidth": 390,
+      "finalPath": "/more",
+      "screenshot": "phone-more-study.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "note-detail",
+      "path": "/notes/e5363031-0faf-40b1-9ec7-167f51292a7f",
+      "family": "library focus",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Linear relationships notes",
+      "scene": "library",
+      "mode": "focus",
+      "missingVisibleImages": [],
+      "mainWidth": 390,
+      "finalPath": "/notes/e5363031-0faf-40b1-9ec7-167f51292a7f",
+      "screenshot": "phone-note-detail.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "quiz-hub",
+      "path": "/study",
+      "family": "seminar",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Quiz",
+      "scene": "seminar",
+      "mode": "scenic",
+      "missingVisibleImages": [],
+      "mainWidth": 390,
+      "finalPath": "/study",
+      "screenshot": "phone-quiz-hub.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "practice",
+      "path": "/study-artifacts/4bd3f184-3a2a-4938-af7a-dce0254fb36c",
+      "family": "seminar focus",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Linear relationships practice",
+      "scene": "seminar",
+      "mode": "focus",
+      "missingVisibleImages": [],
+      "mainWidth": 390,
+      "finalPath": "/study-artifacts/4bd3f184-3a2a-4938-af7a-dce0254fb36c",
+      "screenshot": "phone-practice.png",
+      "productCapture": "phone-practice-product.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "check-in-history",
+      "path": "/wellness",
+      "family": "courtyard",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Check-in history",
+      "scene": "courtyard",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 366,
+      "finalPath": "/wellness",
+      "screenshot": "phone-check-in-history.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings?section=profile",
+      "family": "services",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Profile",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 358,
+      "finalPath": "/settings",
+      "screenshot": "phone-settings-profile.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "settings-tutor",
+      "path": "/settings?section=tutor",
+      "family": "services",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Diana coaching",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 358,
+      "finalPath": "/settings",
+      "screenshot": "phone-settings-tutor.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "settings-security",
+      "path": "/settings?section=security",
+      "family": "services",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Account security",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 358,
+      "finalPath": "/settings",
+      "screenshot": "phone-settings-security.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "onboarding-personalize",
+      "path": "/onboarding?sdState=personalize",
+      "family": "entry onboarding",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Make it yours",
+      "scene": "services",
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 358,
+      "finalPath": "/onboarding",
+      "screenshot": "phone-onboarding-personalize.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "onboarding-connect",
+      "path": "/onboarding?sdState=connect",
+      "family": "entry onboarding",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Connect your school",
+      "scene": "services",
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 358,
+      "finalPath": "/onboarding",
+      "screenshot": "phone-onboarding-connect.png",
+      "pageErrors": [],
+      "assetErrors": []
+    }
+  ],
+  "checks": [
+    {
+      "name": "polish-layout-desktop-lobby-now",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "lobby-now",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 276.484375,
+          "right": 375.40625,
+          "width": 98.921875,
+          "height": 46
+        },
+        {
+          "label": "Work",
+          "left": 460.578125,
+          "right": 557.796875,
+          "width": 97.21875,
+          "height": 46
+        },
+        {
+          "label": "Classes",
+          "left": 642.953125,
+          "right": 765.6875,
+          "width": 122.734375,
+          "height": 46
+        },
+        {
+          "label": "Calendar",
+          "left": 850.859375,
+          "right": 996,
+          "width": 145.140625,
+          "height": 46
+        },
+        {
+          "label": "More",
+          "left": 1081.171875,
+          "right": 1174.015625,
+          "width": 92.84375,
+          "height": 46
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-desktop-work",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "work",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-desktop-classes",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "classes",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-desktop-calendar",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "calendar",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-desktop-more-study",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "more-study",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-desktop-note-detail",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "note-detail",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-desktop-quiz-hub",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "quiz-hub",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-desktop-practice",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "practice",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-desktop-check-in-history",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "check-in-history",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-desktop-settings-tutor",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "settings-tutor",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-desktop-settings-security",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "settings-security",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-phone-lobby-now",
+      "ok": true,
+      "viewport": "phone",
+      "slug": "lobby-now",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 14,
+          "right": 79.515625,
+          "width": 65.515625,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 79.515625,
+          "right": 144.21875,
+          "width": 64.703125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 144.21875,
+          "right": 222.765625,
+          "width": 78.546875,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 222.765625,
+          "right": 313.578125,
+          "width": 90.8125,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 313.578125,
+          "right": 376,
+          "width": 62.421875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-phone-work",
+      "ok": true,
+      "viewport": "phone",
+      "slug": "work",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 14,
+          "right": 79.515625,
+          "width": 65.515625,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 79.515625,
+          "right": 144.21875,
+          "width": 64.703125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 144.21875,
+          "right": 222.765625,
+          "width": 78.546875,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 222.765625,
+          "right": 313.578125,
+          "width": 90.8125,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 313.578125,
+          "right": 376,
+          "width": 62.421875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-phone-classes",
+      "ok": true,
+      "viewport": "phone",
+      "slug": "classes",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 14,
+          "right": 79.515625,
+          "width": 65.515625,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 79.515625,
+          "right": 144.21875,
+          "width": 64.703125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 144.21875,
+          "right": 222.765625,
+          "width": 78.546875,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 222.765625,
+          "right": 313.578125,
+          "width": 90.8125,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 313.578125,
+          "right": 376,
+          "width": 62.421875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-phone-calendar",
+      "ok": true,
+      "viewport": "phone",
+      "slug": "calendar",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 14,
+          "right": 79.515625,
+          "width": 65.515625,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 79.515625,
+          "right": 144.21875,
+          "width": 64.703125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 144.21875,
+          "right": 222.765625,
+          "width": 78.546875,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 222.765625,
+          "right": 313.578125,
+          "width": 90.8125,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 313.578125,
+          "right": 376,
+          "width": 62.421875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-phone-more-study",
+      "ok": true,
+      "viewport": "phone",
+      "slug": "more-study",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 14,
+          "right": 79.515625,
+          "width": 65.515625,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 79.515625,
+          "right": 144.21875,
+          "width": 64.703125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 144.21875,
+          "right": 222.765625,
+          "width": 78.546875,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 222.765625,
+          "right": 313.578125,
+          "width": 90.8125,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 313.578125,
+          "right": 376,
+          "width": 62.421875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-phone-note-detail",
+      "ok": true,
+      "viewport": "phone",
+      "slug": "note-detail",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 14,
+          "right": 79.515625,
+          "width": 65.515625,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 79.515625,
+          "right": 144.21875,
+          "width": 64.703125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 144.21875,
+          "right": 222.765625,
+          "width": 78.546875,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 222.765625,
+          "right": 313.578125,
+          "width": 90.8125,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 313.578125,
+          "right": 376,
+          "width": 62.421875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-phone-quiz-hub",
+      "ok": true,
+      "viewport": "phone",
+      "slug": "quiz-hub",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 14,
+          "right": 79.515625,
+          "width": 65.515625,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 79.515625,
+          "right": 144.21875,
+          "width": 64.703125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 144.21875,
+          "right": 222.765625,
+          "width": 78.546875,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 222.765625,
+          "right": 313.578125,
+          "width": 90.8125,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 313.578125,
+          "right": 376,
+          "width": 62.421875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-phone-practice",
+      "ok": true,
+      "viewport": "phone",
+      "slug": "practice",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 14,
+          "right": 79.515625,
+          "width": 65.515625,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 79.515625,
+          "right": 144.21875,
+          "width": 64.703125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 144.21875,
+          "right": 222.765625,
+          "width": 78.546875,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 222.765625,
+          "right": 313.578125,
+          "width": 90.8125,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 313.578125,
+          "right": 376,
+          "width": 62.421875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-phone-check-in-history",
+      "ok": true,
+      "viewport": "phone",
+      "slug": "check-in-history",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 14,
+          "right": 79.515625,
+          "width": 65.515625,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 79.515625,
+          "right": 144.21875,
+          "width": 64.703125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 144.21875,
+          "right": 222.765625,
+          "width": 78.546875,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 222.765625,
+          "right": 313.578125,
+          "width": 90.8125,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 313.578125,
+          "right": 376,
+          "width": 62.421875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-phone-settings-profile",
+      "ok": true,
+      "viewport": "phone",
+      "slug": "settings-profile",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 14,
+          "right": 79.515625,
+          "width": 65.515625,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 79.515625,
+          "right": 144.21875,
+          "width": 64.703125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 144.21875,
+          "right": 222.765625,
+          "width": 78.546875,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 222.765625,
+          "right": 313.578125,
+          "width": 90.8125,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 313.578125,
+          "right": 376,
+          "width": 62.421875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-phone-settings-tutor",
+      "ok": true,
+      "viewport": "phone",
+      "slug": "settings-tutor",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 14,
+          "right": 79.515625,
+          "width": 65.515625,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 79.515625,
+          "right": 144.21875,
+          "width": 64.703125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 144.21875,
+          "right": 222.765625,
+          "width": 78.546875,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 222.765625,
+          "right": 313.578125,
+          "width": 90.8125,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 313.578125,
+          "right": 376,
+          "width": 62.421875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-phone-settings-security",
+      "ok": true,
+      "viewport": "phone",
+      "slug": "settings-security",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 14,
+          "right": 79.515625,
+          "width": 65.515625,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 79.515625,
+          "right": 144.21875,
+          "width": 64.703125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 144.21875,
+          "right": 222.765625,
+          "width": 78.546875,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 222.765625,
+          "right": 313.578125,
+          "width": 90.8125,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 313.578125,
+          "right": 376,
+          "width": 62.421875,
+          "height": 44
+        }
+      ]
+    }
+  ],
+  "exclusions": [
+    "Real user data and passwords",
+    "Real Google consent, Calendar account linking, mail delivery, provider billing, and AI/media generation",
+    "Subject accuracy, learning outcomes, every assessment/course/group variation, and offline device guarantees"
+  ],
+  "cleanup": {
+    "status": "deleted-and-verified",
+    "syntheticOnly": true
+  },
+  "finishedAt": "2026-11-18T14:53:58.406Z",
+  "totals": {
+    "screens": 36,
+    "screenPasses": 35,
+    "screenFailures": 1,
+    "checks": 23,
+    "checkPasses": 23,
+    "checkFailures": 0
+  }
+}

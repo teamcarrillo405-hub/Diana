@@ -37,6 +37,7 @@
 .root .destinations a:hover,.root .destinations a:focus-visible { background:var(--campus-raised); }
 .root .destinations a:focus-visible { outline-offset:-2px; }
 @keyframes menuArrival { from { opacity:.5; transform:translateX(6px); } to { opacity:1; transform:none; } }
+@media(min-width:761px) { .rail { position:relative; isolation:isolate; align-self:start; } .rail::before { position:absolute; z-index:-1; inset:-14px -12px; content:""; border:1px solid var(--menu-rule); background:#122019f2; } }
 @media(max-width:1200px) { .main { grid-template-columns:200px minmax(0,650px); gap:36px; padding:36px 28px 64px; } .root.root .tabs button { font-size:21px; } }
 @media(max-width:950px) { .main { grid-template-columns:170px minmax(0,1fr); gap:24px; padding-inline:24px; } .root.root .tabs button { font-size:19px; } }
 @media(max-width:760px) {

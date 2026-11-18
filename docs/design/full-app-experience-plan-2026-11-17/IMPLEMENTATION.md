@@ -2,7 +2,7 @@
 
 November 17, 2026, America/Los_Angeles. Base: `25477d594afdd83a7ac5b91ee9e09ddbadf579cf`. Review branch: `codex/full-campus-experience`.
 
-The planned application and design changes are implemented and verified locally. Production is unchanged pending the requested desktop/phone visual review. Email delivery and public Google verification remain external release work; neither is represented as completed.
+The planned application and design changes are implemented and verified locally. The owner approved the menu/workspace balance, subtle motion and phone layout on November 18 and requested brighter backgrounds. That correction is implemented; production is unchanged. Email delivery and public Google verification remain external release work; neither is represented as completed.
 
 [Open the no-sign-in desktop and phone gallery](previews/index.html). It contains 20 paired views with fictional student data. [Original page inventory and plan](README.md).
 
@@ -47,9 +47,13 @@ Original PNG masters and the complete diagnostic screenshot matrices stay local.
 
 This is representative rendered and functional verification, not exhaustive certification of every route permutation, assignment subject or device. Existing tutoring, IEP time adjustments, teacher policy, ownership, authorship and export logic were preserved.
 
+## Owner approval and brighter backgrounds
+
+The [approved design standard](DESIGN-STANDARD.md) now governs future pages. Campus, Lobby, Entry and setup scenes have less broad dimming; small desktop rail backings keep text readable. Every one of the 20 preview pairs was refreshed. [Brightness verification and release boundary](implementation-qa/brightness.md). Owner visual approval is recorded; external email verification remains open.
+
 ## Menu polish follow-up
 
-November 18: stronger brush selection and primary actions, bounded Settings and Quiz composition, brighter secondary room depth with opaque controls, compact 93px phone / 95px tablet navigation, and corrected campus-name wrapping and profile initials. Saved reading preferences still apply to form fields. [Polish changes and final desktop/phone evidence](implementation-qa/polish.md). The gallery now includes the final captures. No new images were generated, and production remains held for visual review.
+November 18: stronger brush selection and primary actions, bounded Settings and Quiz composition, brighter secondary room depth with opaque controls, compact 93px phone / 95px tablet navigation, and corrected campus-name wrapping and profile initials. Saved reading preferences still apply to form fields. [Polish changes and final desktop/phone evidence](implementation-qa/polish.md). The gallery now includes the final captures. No new images were generated. The owner subsequently approved the visual direction and requested the brightness correction below.
 
 ## Cloud verification follow-up
 
@@ -63,6 +67,6 @@ The primary synthetic account and child records were deleted and deletion rechec
 
 Production Vercel metadata confirms the existing production LMS signing key, Google secret and Calendar flag remain configured; secret values were not decrypted or printed. Local auth testing used an ephemeral in-memory test key. Existing Google testing-mode limitations remain; Classroom/Canvas were not broadly enabled.
 
-Before publishing the new visual families, review the desktop/phone gallery as previously requested. Production email delivery, recovery-email template, allowed redirects and the emailed PKCE round trip still need external verification. The tested token-hash recovery path does not prove SMTP delivery. Public Google verification remains a separate owner/provider process.
+The owner approved the visual direction on November 18 with the background-brightness correction now applied. Production email delivery, recovery-email template, allowed redirects and the emailed PKCE round trip still need external verification. The tested token-hash recovery path does not prove SMTP delivery. Public Google verification remains a separate owner/provider process.
 
 The pre-existing untracked `docs/design/college-campus-page-audit-2026-11-15.md` is preserved outside this change. No credentials, local browser state or full raw media masters belong in the commit.

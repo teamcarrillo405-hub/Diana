@@ -20,13 +20,16 @@ const manifestPath = join(privateDir, 'fixture-private.json');
 const followUp = args.has('--follow-up');
 const refreshOnly = args.has('--refresh-only');
 const tutorOnly = args.has('--polish-tutor');
-const polish = args.has('--polish') || tutorOnly;
-const viewportList = [{name:'desktop',width:1440,height:1000}, {name:'phone',width:390,height:844}, ...(polish ? [{name:'narrow',width:320,height:844},{name:'tablet',width:768,height:1024}] : [])];
+const brightness = args.has('--brightness');
+const polish = args.has('--polish') || tutorOnly || brightness;
+const viewportList = [{name:'desktop',width:1440,height:1000}, {name:'phone',width:390,height:844}, ...(polish && !brightness ? [{name:'narrow',width:320,height:844},{name:'tablet',width:768,height:1024}] : [])];
 const selectedViewport = [...args].find(arg=>arg.startsWith('--viewport='))?.slice('--viewport='.length);
 if(selectedViewport){
   if(!viewportList.some(viewport=>viewport.name===selectedViewport))throw new Error('Requested viewport is not in this gate scope.');
   viewportList.splice(0,viewportList.length,...viewportList.filter(viewport=>viewport.name===selectedViewport));
 }
+const pageSelection = [...args].find(arg=>arg.startsWith('--pages='))?.slice('--pages='.length);
+const selectedPages = pageSelection ? new Set(pageSelection.split(',')) : null;
 const settingsSections = ['profile','appearance','notifications','accessibility','goals','learning','tutor','ai','connections','security','sign-out'];
 const moreSections = ['study','record','wellness','account'];
 const publicCases = [
@@ -74,13 +77,18 @@ function privateCases(f) {
     ...settingsSections.map(section=>({slug:`settings-${section}`,path:`/settings?section=${section}`,family:'services'})),
   ];
 }
+if(selectedPages){
+  if(!brightness)throw new Error('Page selection currently requires the brightness-only gate.');
+  const known=new Set([...publicCases,...privateCases({}),{slug:'onboarding-personalize'},{slug:'onboarding-connect'}].map(test=>test.slug));
+  if([...selectedPages].some(slug=>!known.has(slug)))throw new Error('Unknown page selection.');
+}
 if(args.has('--plan')) {
   console.log(JSON.stringify({base:base.origin,publicStates:publicCases.length,authenticatedStates:privateCases({}).length,viewports:viewportList,tabletPrimaryNav:{width:768,height:1024},providerMailAndConsent:'excluded',fixture:'unique synthetic user, deleted in finally unless --keep-fixture',screenshots:'real rendered states only; product candidates use fictional names and no school logo'},null,2));
   process.exit(0);
 }
 await mkdir(outDir,{recursive:true});
 await mkdir(privateDir,{recursive:true});
-const report={version:'campus-experience-browser-qa-v1',startedAt:new Date().toISOString(),base:base.origin,run:stamp,scope:tutorOnly?'Targeted verification of literal tutor action classes after the CSS Modules selector correction.':polish?'Focused visual polish: selected menu, form, paper and navigation states at desktop, phone, narrow phone and tablet widths. No full application regression rerun.':refreshOnly?'Targeted correction of the canonical Now diagnostic only. The initial and first follow-up results remain historical evidence.':followUp?'Targeted superseding evidence for initial reading, contrast, navigation, callback, and diagnostic-selector findings. Initial 110-state report remains unchanged.':'Representative rendered campus states, not exhaustive route or tutoring certification.',viewports:viewportList,results:[],checks:[],exclusions:['Real user data and passwords','Real Google consent, Calendar account linking, mail delivery, provider billing, and AI/media generation','Subject accuracy, learning outcomes, every assessment/course/group variation, and offline device guarantees'],cleanup:{status:'not-started'}};
+const report={version:'campus-experience-browser-qa-v1',startedAt:new Date().toISOString(),base:base.origin,run:stamp,scope:brightness?'Brightness correction only: current gallery scenes and entry/setup states at desktop and phone sizes. No unrelated interaction or subject regression rerun.':tutorOnly?'Targeted verification of literal tutor action classes after the CSS Modules selector correction.':polish?'Focused visual polish: selected menu, form, paper and navigation states at desktop, phone, narrow phone and tablet widths. No full application regression rerun.':refreshOnly?'Targeted correction of the canonical Now diagnostic only. The initial and first follow-up results remain historical evidence.':followUp?'Targeted superseding evidence for initial reading, contrast, navigation, callback, and diagnostic-selector findings. Initial 110-state report remains unchanged.':'Representative rendered campus states, not exhaustive route or tutoring certification.',viewports:viewportList,results:[],checks:[],exclusions:['Real user data and passwords','Real Google consent, Calendar account linking, mail delivery, provider billing, and AI/media generation','Subject accuracy, learning outcomes, every assessment/course/group variation, and offline device guarantees'],cleanup:{status:'not-started'}};
 let browser,admin,fixture;
 function safeError(error) {return String(error?.message ?? error).replace(/https?:\/\/[^\s)]+/g,'[url]').replace(/eyJ[A-Za-z0-9._-]+/g,'[redacted-token]').slice(0,400);}
 async function check(name, fn) {try {const evidence=await fn();report.checks.push({name,ok:true,...evidence});}catch(error){report.checks.push({name,ok:false,error:safeError(error)});}}
@@ -150,6 +158,7 @@ async function inspect(page,viewport){
   },viewport);
 }
 async function capture(page,test,viewport,authenticated=false) {
+  if(selectedPages&&!selectedPages.has(test.slug))return {ok:false,skipped:true};
   const row={slug:test.slug,path:fixture?.shareToken?test.path.replace(fixture.shareToken,"[synthetic-token]"):test.path,family:test.family,viewport:viewport.name,ok:false};
   const errors=[];const assets=[];
   const onError=error=>errors.push(safeError(error));
@@ -392,15 +401,17 @@ try {
   for(const viewport of viewportList){
     await updateProfile({extra_time_pct:0,tts_enabled:false,accommodations:[]});
     if(polish) {
+      if(brightness&&(!selectedPages||['sign-in','signup','forgot-password','offline'].some(slug=>selectedPages.has(slug)))){const publicContext=await newContext(viewport),publicPage=await publicContext.newPage();for(const test of publicCases.filter(test=>['sign-in','signup','forgot-password','offline'].includes(test.slug)))await capture(publicPage,test,viewport);await publicContext.close();}
       const context=await newContext(viewport,true),page=await context.newPage();
-      const selected=tutorOnly?['settings-tutor']:['lobby-now','work','classes','calendar','more-study','quiz-hub','notes','note-detail','practice','settings-profile','settings-appearance','settings-security','check-in-history','workspace'];
+      const selected=brightness?['lobby-now','work','classes','calendar','more-study','note-detail','quiz-hub','practice','check-in-history','settings-profile','settings-security','settings-tutor']:tutorOnly?['settings-tutor']:['lobby-now','work','classes','calendar','more-study','quiz-hub','notes','note-detail','practice','settings-profile','settings-appearance','settings-security','check-in-history','workspace'];
       const compact=tutorOnly?['settings-tutor']:['lobby-now','work','classes','calendar','more-study','quiz-hub','settings-profile'];
       for(const test of privateCases(fixture).filter(test=>(['narrow','tablet'].includes(viewport.name)?compact:selected).includes(test.slug))) {
         const row=await capture(page,test,viewport,true);
         if(row.ok)await check('polish-layout-'+viewport.name+'-'+test.slug,()=>polishLayout(page,viewport,test.slug));
       }
+      if(brightness&&(!selectedPages||['onboarding-personalize','onboarding-connect'].some(slug=>selectedPages.has(slug)))){await updateProfile({onboarded_at:null});for(const step of ['personalize','connect'])await capture(page,{slug:'onboarding-'+step,path:'/onboarding?sdState='+step,family:'entry onboarding'},viewport,true);await updateProfile({onboarded_at:new Date().toISOString()});}
       if(tutorOnly)await check('tutor-controls-'+viewport.name,()=>tutorControls(page,viewport));
-      if(!tutorOnly&&['desktop','phone'].includes(viewport.name))await check('polish-interactions-'+viewport.name,()=>polishInteractions(page,viewport));
+      if(!tutorOnly&&!brightness&&['desktop','phone'].includes(viewport.name))await check('polish-interactions-'+viewport.name,()=>polishInteractions(page,viewport));
       await context.close();
       continue;
     }

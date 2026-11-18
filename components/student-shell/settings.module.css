@@ -72,6 +72,7 @@
 .root :global(.sd-tutor-range-track) input { width:100%; height:44px; accent-color:var(--campus-action); }
 .root :global(.sd-tutor-range-labels) { display:flex; justify-content:space-between; gap:10px; font-size:.9rem; }
 .root.root :global(.sd-tutor-primary) { background:var(--campus-action); color:var(--campus-action-text); margin-top:20px; }
+@media(min-width:851px) { .root :global(.sd-settings-rail) { position:relative; isolation:isolate; } .root :global(.sd-settings-rail)::before { position:absolute; z-index:-1; inset:-14px -12px; content:""; border:1px solid var(--campus-rule); background:#122019f2; } }
 @media(max-width:1000px) { .root :global(.sd-settings-desktop) { grid-template-columns:200px minmax(0,1fr); gap:24px; padding-inline:24px; } }
 @media(max-width:850px) {
  .root :global(.sd-settings-desktop) { grid-template-columns:1fr; padding:18px 16px 48px; gap:14px; }
