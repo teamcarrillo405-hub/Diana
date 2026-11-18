@@ -22,6 +22,7 @@ import { profileSchoolYearLabel } from "./source-models";
 import { LobbyBackgroundPicker } from "./lobby-background-picker";
 import { PlayerPhoto } from "./player-photo";
 import { ProfileCenterForm } from "./profile-center-form";
+import { SourceDisconnectButton } from "./source-disconnect-button";
 import { TutorPreferences } from "./tutor/tutor-preferences";
 import { SignOutButton } from "./sign-out";
 
@@ -257,6 +258,7 @@ function SettingsShell({
                       {connection.state === "attention" ? <Link href={connection.calendarOnly
                         ? "/api/lms/google-oauth/start?calendar=1&return_to=/calendar"
                         : "/api/lms/google-oauth/start"}>{connection.calendarOnly ? "Reconnect Google Calendar" : "Reconnect Google Classroom"}</Link> : null}
+                      {editable ? <SourceDisconnectButton connectionId={connection.id} calendarOnly={connection.calendarOnly} /> : null}
                     </span> : null}
                   </div>
                 ))
