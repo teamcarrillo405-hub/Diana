@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 
 import { AssignmentWorkspace } from "@/components/assignment-workspace";
+import { safeCalendarReturnHref } from "@/lib/calendar-return";
 import { parseStoredAssignmentArtifactBlocks } from "@/lib/assignment-artifact";
 import { loadAssignmentHomeworkKernel } from "@/lib/assignment-help/server-understanding";
 import { legacySavedWorkForUnifiedUnit } from "@/lib/assignment-legacy-work";
@@ -81,10 +82,13 @@ function parseStoredAttachments(value: Json): ChatAttachment[] {
 
 export default async function AssignmentWorkspacePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ calendarReturn?: string }>;
 }) {
   const { id } = await params;
+  const calendarReturn = safeCalendarReturnHref((await searchParams)?.calendarReturn);
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -233,6 +237,7 @@ export default async function AssignmentWorkspacePage({
   return (
     <AssignmentWorkspace
       assignmentId={assignment.id}
+      calendarReturn={calendarReturn}
       classId={assignment.class_id}
       navigationProfile={navigationProfile ? {
         displayName: navigationProfile.display_name,

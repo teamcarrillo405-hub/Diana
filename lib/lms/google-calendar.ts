@@ -16,6 +16,7 @@ type GoogleCalendarEvent = {
 };
 
 type GoogleCalendarListResponse = {
+  kind?: string;
   items?: GoogleCalendarEvent[];
   nextPageToken?: string;
 };
@@ -79,10 +80,23 @@ export async function fetchGoogleCalendarEvents(
     if (pageToken) url.searchParams.set("pageToken", pageToken);
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
     });
     if (!response.ok) throw new Error(`Google Calendar request returned ${response.status}`);
     const payload = (await response.json()) as GoogleCalendarListResponse;
-    events.push(...(payload.items ?? []).map(normalizeGoogleCalendarEvent).filter(Boolean) as NormalizedGoogleCalendarEvent[]);
+    if (!payload || typeof payload !== "object" || Array.isArray(payload) || payload.kind !== "calendar#events"
+      || (payload.items !== undefined && !Array.isArray(payload.items))
+      || (payload.nextPageToken !== undefined && typeof payload.nextPageToken !== "string")
+      || "error" in payload) throw new Error("Google Calendar returned an incomplete event list.");
+    for (const event of payload.items ?? []) {
+      if (!event || typeof event !== "object" || typeof event.id !== "string" || !event.id) {
+        throw new Error("Google Calendar returned an incomplete event.");
+      }
+      if (event.status === "cancelled") continue;
+      const normalized = normalizeGoogleCalendarEvent(event);
+      if (!normalized) throw new Error("Google Calendar returned an incomplete event.");
+      events.push(normalized);
+    }
     pageToken = payload.nextPageToken ?? null;
     if (!pageToken) return events;
   }
@@ -93,24 +107,24 @@ export async function syncGoogleCalendarEvents(
   supabase: any,
   ownerId: string,
   accessToken: string,
-): Promise<{ imported: number }> {
-  const start = new Date();
+): Promise<{ imported: number; removed: number; applied: boolean; syncedAt: string; rangeStart: string; rangeEnd: string }> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user.id !== ownerId) throw new Error("Sign in to sync your calendar.");
+  const snapshotAt = new Date().toISOString();
+  const start = new Date(snapshotAt);
   start.setDate(start.getDate() - 35);
-  const end = new Date();
+  const end = new Date(snapshotAt);
   end.setMonth(end.getMonth() + 6);
   const events = await fetchGoogleCalendarEvents(accessToken, { start, end });
-  if (events.length === 0) return { imported: 0 };
-  const syncedAt = new Date().toISOString();
-  const { error } = await supabase.from("calendar_events").upsert(
-    events.map((event) => ({
-      owner_id: ownerId,
-      provider: "google_calendar",
-      external_calendar_id: "primary",
-      ...event,
-      last_synced_at: syncedAt,
-    })),
-    { onConflict: "owner_id,provider,external_calendar_id,external_event_id" },
-  );
+  const { data, error } = await supabase.rpc("reconcile_google_calendar_snapshot", {
+    p_range_start: start.toISOString(), p_range_end: end.toISOString(),
+    p_snapshot_at: snapshotAt, p_events: events, p_complete: true,
+  });
   if (error) throw new Error(error.message);
-  return { imported: events.length };
+  if (!data || typeof data.imported !== "number" || typeof data.removed !== "number"
+    || typeof data.applied !== "boolean" || typeof data.syncedAt !== "string"
+    || typeof data.rangeStart !== "string" || typeof data.rangeEnd !== "string") {
+    throw new Error("Calendar sync could not be confirmed.");
+  }
+  return data;
 }

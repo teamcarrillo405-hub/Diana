@@ -84,6 +84,19 @@ describe("ScreenDesign settings source models", () => {
     expect(JSON.stringify(views)).not.toContain("refresh_token");
   });
 
+  it("labels a Calendar-only connection without inventing Classroom access", () => {
+    const [calendar, classroom] = sanitizeLmsConnections([
+      { id: "calendar", provider: "google_classroom", last_synced_at: null,
+        config: { calendar_enabled: true, calendar_last_synced_at: "2026-11-18T00:00:00Z",
+          granted_scopes: ["openid", "email", "https://www.googleapis.com/auth/calendar.readonly"] } },
+      { id: "classroom", provider: "google_classroom", last_synced_at: null,
+        config: { calendar_enabled: true, granted_scopes: ["https://www.googleapis.com/auth/classroom.courses.readonly"] } },
+    ]);
+    expect(calendar).toMatchObject({ calendarOnly: true, calendarEnabled: true, state: "synced", lastSyncedAt: "2026-11-18T00:00:00Z" });
+    expect(classroom).toMatchObject({ calendarOnly: false, calendarEnabled: true, state: "pending", lastSyncedAt: null });
+    expect(JSON.stringify(calendar)).not.toContain("granted_scopes");
+  });
+
   it("does not report sync success when any provider returns an error", () => {
     expect(
       summarizeSyncAll({

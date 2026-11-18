@@ -50,6 +50,10 @@ export const GOOGLE_CLASSROOM_TEACHER_SUBMISSION_SCOPES = [
 export const GOOGLE_CALENDAR_READONLY_SCOPE =
   "https://www.googleapis.com/auth/calendar.readonly";
 
+export function googleCalendarOAuthScopes(): string[] {
+  return [...GOOGLE_IDENTITY_SCOPES, GOOGLE_CALENDAR_READONLY_SCOPE];
+}
+
 export function googleClassroomOAuthScopes(input: {
   calendarEnabled?: boolean;
   importEnabled: boolean;
@@ -97,8 +101,11 @@ export function missingGoogleScopes(
   grantedScopes: readonly string[],
   requiredScopes: readonly string[] = GOOGLE_CLASSROOM_SCOPES,
 ): string[] {
-  const granted = new Set(grantedScopes.map((scope) => scope.trim()).filter(Boolean));
-  return requiredScopes.filter((scope) => !granted.has(scope));
+  // Google may return the canonical URI for the OpenID email shorthand.
+  const canonical = (scope: string) => scope.trim() === "email"
+    ? "https://www.googleapis.com/auth/userinfo.email" : scope.trim();
+  const granted = new Set(grantedScopes.map(canonical).filter(Boolean));
+  return requiredScopes.filter((scope) => !granted.has(canonical(scope)));
 }
 
 /**

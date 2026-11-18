@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { buildCalendarReturnHref } from "../calendar-return";
 
 import {
   issueLmsOAuthState,
@@ -81,13 +82,13 @@ function cookieStore(values: CookieValues) {
   };
 }
 
-function supabaseDouble(ownerId = "student-1") {
+function supabaseDouble(ownerId = "student-1", existingConfig?: Record<string, unknown>) {
   const query: Record<string, unknown> = {};
   Object.assign(query, {
     select: vi.fn(() => query),
     eq: vi.fn(() => query),
     update: vi.fn(() => query),
-    maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+    maybeSingle: vi.fn(async () => ({ data: existingConfig ? { config: existingConfig } : null, error: null })),
     then: (
       resolve: (value: { data: null; error: null }) => unknown,
       reject: (reason: unknown) => unknown,
@@ -148,6 +149,9 @@ beforeEach(() => {
   vi.stubEnv("CANVAS_CLIENT_SECRET", "canvas-secret");
   vi.stubEnv("GOOGLE_CLIENT_ID", "google-client");
   vi.stubEnv("GOOGLE_CLIENT_SECRET", "google-secret");
+  vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "false");
+  vi.stubEnv("DIANA_LMS_GOOGLE_IMPORT_ENABLED", "false");
+  vi.stubEnv("DIANA_LMS_GOOGLE_SUBMISSION_ENABLED", "false");
   mocks.createClient.mockResolvedValue(supabaseDouble());
   mocks.assertLmsCredentialVaultAvailable.mockResolvedValue(undefined);
   mocks.resolveCanvasInstitutionFromRequest.mockResolvedValue({
@@ -176,6 +180,185 @@ afterEach(() => {
 });
 
 describe("provider canary OAuth callback fixtures", () => {
+  const calendarScopes = ["openid", "email", "https://www.googleapis.com/auth/calendar.readonly"];
+  function calendarState() {
+    return issueLmsOAuthState({ provider: "google_classroom", ownerId: "student-1", secret: "test-oauth-state-secret",
+      context: { calendar: true, courseMode: false, returnTo: buildCalendarReturnHref({ day: "2026-11-18", view: "week", item: "google-one~2026-11-18" }) as `/calendar?${string}` } });
+  }
+
+  it("requests only read-only Calendar and identity scopes even when Classroom features are enabled", async () => {
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "true");
+    vi.stubEnv("DIANA_LMS_GOOGLE_IMPORT_ENABLED", "true");
+    vi.stubEnv("DIANA_LMS_GOOGLE_SUBMISSION_ENABLED", "true");
+    const { GET } = await import("@/app/api/lms/google-oauth/start/route");
+    const response = await GET(new Request("https://diana.example/api/lms/google-oauth/start?calendar=1&return_to=%2Fcalendar"));
+    const location = new URL(response.headers.get("location")!);
+    expect(location.origin).toBe("https://accounts.google.com");
+    expect(location.searchParams.get("scope")?.split(" ")).toEqual(calendarScopes);
+    expect(location.searchParams.get("include_granted_scopes")).toBe("true");
+    expect(location.searchParams.get("redirect_uri")).toBe("https://diana.example/api/lms/google-oauth/callback");
+  });
+
+  it("allows Calendar-only connection without enabling or importing Classroom", async () => {
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "true");
+    const issued = calendarState();
+    mocks.cookies.mockResolvedValue(cookieStore({ google_oauth_state: issued.cookieVerifier }));
+    const network = vi.fn(async () => new Response(JSON.stringify({ access_token: "calendar-access", refresh_token: "calendar-refresh", scope: calendarScopes.join(" ") })));
+    vi.stubGlobal("fetch", network);
+    const { GET } = await import("@/app/api/lms/google-oauth/callback/route");
+    const response = await GET(new Request(`https://diana.example/api/lms/google-oauth/callback?code=code-1&state=${encodeURIComponent(issued.state)}`));
+    expect(redirectStatus(response, "classroom")).toBe("calendar-connected");
+    expect(new URL(response.headers.get("location")!).searchParams.get("item")).toBe("google-one~2026-11-18");
+    expect(mocks.syncGoogleCalendarEvents).toHaveBeenCalledWith(expect.anything(), "student-1", "calendar-access");
+    expect(mocks.fetchClassroomAssignments).not.toHaveBeenCalled();
+    expect(mocks.syncLmsAssignments).not.toHaveBeenCalled();
+    expect(mocks.saveLmsConnectionForRuntime).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+      config: expect.objectContaining({ calendar_enabled: true, granted_scopes: calendarScopes }),
+    }));
+  });
+
+  it("preserves an existing teacher connection and prior grants on Calendar reconnect without a Classroom import", async () => {
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "true");
+    vi.stubEnv("DIANA_LMS_GOOGLE_IMPORT_ENABLED", "true");
+    const priorScopes = ["openid", "email", "https://www.googleapis.com/auth/classroom.coursework.students.readonly", "https://www.googleapis.com/auth/drive.readonly"];
+    mocks.createClient.mockResolvedValue(supabaseDouble("student-1", {
+      connection_mode: "teacher", granted_scopes: priorScopes, calendar_last_synced_at: "2026-11-17T00:00:00Z",
+    }));
+    const issued = calendarState();
+    mocks.cookies.mockResolvedValue(cookieStore({ google_oauth_state: issued.cookieVerifier }));
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ access_token: "combined-access", refresh_token: "combined-refresh", scope: [...new Set([...priorScopes, ...calendarScopes])].join(" ") }))));
+    const { GET } = await import("@/app/api/lms/google-oauth/callback/route");
+    const response = await GET(new Request(`https://diana.example/api/lms/google-oauth/callback?code=code-1&state=${encodeURIComponent(issued.state)}`));
+    expect(redirectStatus(response, "classroom")).toBe("calendar-connected");
+    expect(mocks.saveLmsConnectionForRuntime).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ config: expect.objectContaining({
+      connection_mode: "teacher", calendar_last_synced_at: "2026-11-17T00:00:00Z", calendar_enabled: true,
+    }) }));
+    expect(mocks.fetchClassroomAssignments).not.toHaveBeenCalled();
+  });
+
+  it("does not overwrite existing LMS credentials when Google returns a narrower Calendar grant", async () => {
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "true");
+    mocks.createClient.mockResolvedValue(supabaseDouble("student-1", { connection_mode: "student",
+      granted_scopes: ["openid", "email", "https://www.googleapis.com/auth/drive.readonly"] }));
+    const issued = calendarState();
+    mocks.cookies.mockResolvedValue(cookieStore({ google_oauth_state: issued.cookieVerifier }));
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ access_token: "narrow-access", scope: calendarScopes.join(" ") }))));
+    const { GET } = await import("@/app/api/lms/google-oauth/callback/route");
+    const response = await GET(new Request(`https://diana.example/api/lms/google-oauth/callback?code=code-1&state=${encodeURIComponent(issued.state)}`));
+    expect(redirectStatus(response, "classroom")).toBe("scope-error");
+    expect(mocks.saveLmsConnectionForRuntime).not.toHaveBeenCalled();
+    expect(mocks.syncGoogleCalendarEvents).not.toHaveBeenCalled();
+  });
+
+  it.each([false, true])("preserves a legacy LMS connection with Calendar enabled=%s when its prior scopes cannot be verified", async calendarEnabled => {
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "true");
+    mocks.createClient.mockResolvedValue(supabaseDouble("student-1", { connection_mode: calendarEnabled ? "teacher" : "student", oauth: true, calendar_enabled: calendarEnabled }));
+    const issued = calendarState();
+    mocks.cookies.mockResolvedValue(cookieStore({ google_oauth_state: issued.cookieVerifier }));
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ access_token: "narrow-access", scope: calendarScopes.join(" ") }))));
+    const { GET } = await import("@/app/api/lms/google-oauth/callback/route");
+    const response = await GET(new Request(`https://diana.example/api/lms/google-oauth/callback?code=code-1&state=${encodeURIComponent(issued.state)}`));
+    expect(redirectStatus(response, "classroom")).toBe("scope-error");
+    expect(mocks.saveLmsConnectionForRuntime).not.toHaveBeenCalled();
+  });
+
+  it("keeps Calendar disabled in both OAuth endpoints when only Classroom is enabled", async () => {
+    vi.stubEnv("DIANA_LMS_GOOGLE_IMPORT_ENABLED", "true");
+    const issued = calendarState();
+    mocks.cookies.mockResolvedValue(cookieStore({ google_oauth_state: issued.cookieVerifier }));
+    const network = vi.fn();
+    vi.stubGlobal("fetch", network);
+    const { GET: start } = await import("@/app/api/lms/google-oauth/start/route");
+    const { GET: callback } = await import("@/app/api/lms/google-oauth/callback/route");
+    expect(redirectStatus(await start(new Request("https://diana.example/api/lms/google-oauth/start?calendar=1")), "classroom")).toBe("disabled");
+    expect(redirectStatus(await callback(new Request(`https://diana.example/api/lms/google-oauth/callback?code=code-1&state=${encodeURIComponent(issued.state)}`)), "classroom")).toBe("disabled");
+    expect(network).not.toHaveBeenCalled();
+    expect(mocks.saveLmsConnectionForRuntime).not.toHaveBeenCalled();
+  });
+
+  it("does not enable either standard Classroom OAuth endpoint when only Calendar is enabled", async () => {
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "true");
+    const issued = googleState();
+    mocks.cookies.mockResolvedValue(cookieStore({ google_oauth_state: issued.cookieVerifier }));
+    const network = vi.fn();
+    vi.stubGlobal("fetch", network);
+    const { GET: start } = await import("@/app/api/lms/google-oauth/start/route");
+    const { GET: callback } = await import("@/app/api/lms/google-oauth/callback/route");
+    expect(redirectStatus(await start(new Request("https://diana.example/api/lms/google-oauth/start")), "classroom")).toBe("disabled");
+    expect(redirectStatus(await callback(new Request(`https://diana.example/api/lms/google-oauth/callback?code=code-1&state=${encodeURIComponent(issued.state)}`)), "classroom")).toBe("disabled");
+    expect(network).not.toHaveBeenCalled();
+    expect(mocks.saveLmsConnectionForRuntime).not.toHaveBeenCalled();
+  });
+
+  it("preserves an existing Calendar grant through a standard Classroom reconnect", async () => {
+    enableOnly("google_submission");
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "true");
+    mocks.createClient.mockResolvedValue(supabaseDouble("student-1", { calendar_enabled: true,
+      calendar_last_synced_at: "2026-11-17T00:00:00Z", granted_scopes: calendarScopes, connection_mode: "student" }));
+    const issued = googleState();
+    mocks.cookies.mockResolvedValue(cookieStore({ google_oauth_state: issued.cookieVerifier }));
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ access_token: "combined-access", refresh_token: "combined-refresh",
+      scope: [...calendarScopes, "https://www.googleapis.com/auth/classroom.courses.readonly", "https://www.googleapis.com/auth/classroom.coursework.me", "https://www.googleapis.com/auth/drive.file"].join(" ") }))));
+    const { GET } = await import("@/app/api/lms/google-oauth/callback/route");
+    const response = await GET(new Request(`https://diana.example/api/lms/google-oauth/callback?code=code-1&state=${encodeURIComponent(issued.state)}`));
+    expect(redirectStatus(response, "classroom")).toBe("connected");
+    expect(mocks.saveLmsConnectionForRuntime).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ config: expect.objectContaining({ calendar_enabled: true, calendar_last_synced_at: "2026-11-17T00:00:00Z" }) }));
+    expect(mocks.syncGoogleCalendarEvents).toHaveBeenCalledOnce();
+    expect(mocks.fetchClassroomAssignments).not.toHaveBeenCalled();
+  });
+
+  it("rejects a Calendar callback missing Calendar permission before saving or importing", async () => {
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "true");
+    const issued = calendarState();
+    mocks.cookies.mockResolvedValue(cookieStore({ google_oauth_state: issued.cookieVerifier }));
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ access_token: "partial-access", scope: "openid email" }))));
+    const { GET } = await import("@/app/api/lms/google-oauth/callback/route");
+    const response = await GET(new Request(`https://diana.example/api/lms/google-oauth/callback?code=code-1&state=${encodeURIComponent(issued.state)}`));
+    expect(redirectStatus(response, "classroom")).toBe("scope-error");
+    expect(mocks.saveLmsConnectionForRuntime).not.toHaveBeenCalled();
+    expect(mocks.syncGoogleCalendarEvents).not.toHaveBeenCalled();
+  });
+
+  it("returns Calendar configuration errors to the selected date and view", async () => {
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "true");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "");
+    const { GET } = await import("@/app/api/lms/google-oauth/start/route");
+    const returnTo = "/calendar?day=2026-11-17&view=week&item=google-one";
+    const request = new URL("https://diana.example/api/lms/google-oauth/start");
+    request.searchParams.set("calendar", "1");
+    request.searchParams.set("return_to", returnTo);
+    const response = await GET(new Request(request));
+    const location = new URL(response.headers.get("location")!);
+    expect(location.pathname).toBe("/calendar");
+    expect(location.searchParams.get("day")).toBe("2026-11-17");
+    expect(location.searchParams.get("view")).toBe("week");
+    expect(location.searchParams.get("item")).toBe("google-one");
+    expect(location.searchParams.get("classroom")).toBe("not-configured");
+  });
+
+  it("returns declined Google consent to Calendar without a token exchange", async () => {
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "true");
+    const returnTo = buildCalendarReturnHref({ day: "2026-11-18", view: "month", item: "google-one~2026-11-18" }) as `/calendar?${string}`;
+    const issued = issueLmsOAuthState({ provider: "google_classroom", ownerId: "student-1", secret: "test-oauth-state-secret",
+      context: { calendar: true, courseMode: false, returnTo } });
+    mocks.cookies.mockResolvedValue(cookieStore({ google_oauth_state: issued.cookieVerifier }));
+    const network = vi.fn();
+    vi.stubGlobal("fetch", network);
+    const { GET } = await import("@/app/api/lms/google-oauth/callback/route");
+    const request = new URL("https://diana.example/api/lms/google-oauth/callback");
+    request.searchParams.set("state", issued.state);
+    request.searchParams.set("error", "access_denied");
+    const response = await GET(new Request(request));
+    const location = new URL(response.headers.get("location")!);
+    expect(location.pathname).toBe("/calendar");
+    expect(location.searchParams.get("day")).toBe("2026-11-18");
+    expect(location.searchParams.get("view")).toBe("month");
+    expect(location.searchParams.get("item")).toBe("google-one~2026-11-18");
+    expect(location.searchParams.get("classroom")).toBe("denied");
+    expect(network).not.toHaveBeenCalled();
+    expect(mocks.saveLmsConnectionForRuntime).not.toHaveBeenCalled();
+  });
+
   it("issues Canvas and Google start states bound to the initiating Diana user", async () => {
     vi.stubEnv("CANVAS_ALLOWED_ORIGINS", "https://canvas.example.edu");
 

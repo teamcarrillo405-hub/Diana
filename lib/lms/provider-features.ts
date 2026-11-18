@@ -4,7 +4,8 @@ export type LmsProviderFeature =
   | "canvas_import"
   | "canvas_submission"
   | "google_import"
-  | "google_submission";
+  | "google_submission"
+  | "google_calendar";
 
 type Env = Record<string, string | undefined>;
 
@@ -16,6 +17,7 @@ export interface ProviderFeatureFlags {
   google: {
     import: boolean;
     submission: boolean;
+    calendar: boolean;
   };
 }
 
@@ -24,6 +26,7 @@ export const LMS_PROVIDER_FEATURE_ENV: Record<LmsProviderFeature, string> = {
   canvas_submission: "DIANA_LMS_CANVAS_SUBMISSION_ENABLED",
   google_import: "DIANA_LMS_GOOGLE_IMPORT_ENABLED",
   google_submission: "DIANA_LMS_GOOGLE_SUBMISSION_ENABLED",
+  google_calendar: "DIANA_GOOGLE_CALENDAR_ENABLED",
 };
 
 export function isLmsProviderFeatureEnabled(
@@ -42,6 +45,9 @@ export function assertLmsProviderFeatureEnabled(
   env: Env = process.env,
 ): void {
   if (isLmsProviderFeatureEnabled(feature, env)) return;
+  if (feature === "google_calendar") {
+    throw new LmsOperationError("Google Calendar is not enabled.", "provider_feature_disabled", 503);
+  }
   const [provider, operation] = feature.split("_") as ["canvas" | "google", "import" | "submission"];
   const providerName = provider === "canvas" ? "Canvas" : "Google Classroom";
   throw new LmsOperationError(
@@ -60,6 +66,7 @@ export function lmsProviderCapabilities(env: Env = process.env): Readonly<Provid
     google: Object.freeze({
       import: isLmsProviderFeatureEnabled("google_import", env),
       submission: isLmsProviderFeatureEnabled("google_submission", env),
+      calendar: isLmsProviderFeatureEnabled("google_calendar", env),
     }),
   });
 }

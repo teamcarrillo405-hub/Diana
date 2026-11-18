@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   fetchClassroomAssignments,
+  GOOGLE_CALENDAR_READONLY_SCOPE,
+  googleCalendarOAuthScopes,
   googleClassroomOAuthScopes,
   missingGoogleScopes,
 } from "@/lib/lms/google";
@@ -67,7 +69,7 @@ export async function GET(request: Request) {
   const { courseMode, calendar, returnTo } = verification.payload.context;
   const capabilities = lmsProviderCapabilities();
 
-  if (!calendar && !capabilities.google.import && !capabilities.google.submission) {
+  if (calendar ? !capabilities.google.calendar : !capabilities.google.import && !capabilities.google.submission) {
     return settingsRedirect(request.url, "disabled", courseMode, returnTo);
   }
   if (providerError) return settingsRedirect(request.url, "denied", courseMode, returnTo);
@@ -79,6 +81,7 @@ export async function GET(request: Request) {
 
   const redirectUri = new URL("/api/lms/google-oauth/callback", request.url).toString();
   let tokenRes: Response;
+  let tokenBody: GoogleTokenResponse;
   try {
     tokenRes = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
@@ -90,17 +93,18 @@ export async function GET(request: Request) {
         redirect_uri: redirectUri,
         code,
       }),
+      signal: AbortSignal.timeout(15_000),
     });
+    if (!tokenRes.ok) return settingsRedirect(request.url, "token-error", courseMode, returnTo);
+    tokenBody = (await tokenRes.json()) as GoogleTokenResponse;
   } catch {
     return settingsRedirect(request.url, "token-error", courseMode, returnTo);
   }
-  if (!tokenRes.ok) return settingsRedirect(request.url, "token-error", courseMode, returnTo);
-
-  const tokenBody = (await tokenRes.json()) as GoogleTokenResponse;
-  if (!tokenBody.access_token) return settingsRedirect(request.url, "token-error", courseMode, returnTo);
-  const grantedScopes = tokenBody.scope?.split(/\s+/u).filter(Boolean) ?? [];
-  const requiredScopes = googleClassroomOAuthScopes({
-    calendarEnabled: calendar,
+  if (!tokenBody || typeof tokenBody !== "object" || Array.isArray(tokenBody) || !tokenBody.access_token) {
+    return settingsRedirect(request.url, "token-error", courseMode, returnTo);
+  }
+  const grantedScopes = typeof tokenBody.scope === "string" ? tokenBody.scope.split(/\s+/u).filter(Boolean) : [];
+  const requiredScopes = calendar ? googleCalendarOAuthScopes() : googleClassroomOAuthScopes({
     importEnabled: capabilities.google.import,
     submissionEnabled: capabilities.google.submission,
     teacher: courseMode,
@@ -113,20 +117,40 @@ export async function GET(request: Request) {
     typeof tokenBody.expires_in === "number"
       ? new Date(Date.now() + tokenBody.expires_in * 1000).toISOString()
       : null;
-  const { data: existingConnection } = await supabase
+  const { data: existingConnection, error: connectionReadError } = await supabase
     .from("lms_connections")
     .select("config")
     .eq("owner_id", user.id)
     .eq("provider", "google_classroom")
     .maybeSingle();
+  if (connectionReadError) return settingsRedirect(request.url, "save-error", courseMode, returnTo);
   const calendarEnabledBefore =
     (existingConnection?.config as { calendar_enabled?: boolean } | null)?.calendar_enabled === true;
+  const priorConfig = existingConnection?.config as Record<string, unknown> | null;
+  if (calendar && existingConnection && !Array.isArray(priorConfig?.granted_scopes)) {
+    // Legacy LMS grants cannot be safely inferred from a Calendar-only token.
+    return settingsRedirect(request.url, "scope-error", courseMode, returnTo);
+  }
+  // Incremental Google authorization returns the prior scopes alongside the new
+  // Calendar grant. Never replace a working LMS credential with a narrower one.
+  const preservedScopes = calendar && Array.isArray(priorConfig?.granted_scopes)
+    ? priorConfig.granted_scopes.filter((scope): scope is string => typeof scope === "string")
+    : calendarEnabledBefore ? [GOOGLE_CALENDAR_READONLY_SCOPE] : [];
+  if (missingGoogleScopes(grantedScopes, preservedScopes).length > 0) {
+    return settingsRedirect(request.url, "scope-error", courseMode, returnTo);
+  }
+  const calendarMetadata = Object.fromEntries(
+    ["calendar_last_synced_at", "calendar_snapshot_at", "calendar_range_start", "calendar_range_end", "calendar_id"]
+      .filter(key => typeof priorConfig?.[key] === "string").map(key => [key, priorConfig![key]]),
+  );
   const config = {
+    ...calendarMetadata,
     oauth: true,
     expires_at: expiresAt,
     token_type: tokenBody.token_type ?? "Bearer",
     granted_scopes: grantedScopes,
-    connection_mode: courseMode ? "teacher" : "student",
+    connection_mode: calendar && (priorConfig?.connection_mode === "teacher" || priorConfig?.connection_mode === "student")
+      ? priorConfig.connection_mode : courseMode ? "teacher" : "student",
     calendar_enabled: calendar || calendarEnabledBefore,
   };
   let savedConnection: Awaited<ReturnType<typeof saveLmsConnectionForRuntime>>;
@@ -143,11 +167,13 @@ export async function GET(request: Request) {
   }
 
   if (courseMode) return settingsRedirect(request.url, "connected", true, returnTo);
+  let calendarSynced = false;
   try {
-    if (calendar || calendarEnabledBefore) {
+    if (capabilities.google.calendar && (calendar || calendarEnabledBefore)) {
       await syncGoogleCalendarEvents(supabase as any, user.id, tokenBody.access_token);
+      calendarSynced = true;
     }
-    if (capabilities.google.import) {
+    if (!calendar && capabilities.google.import) {
       const { items, skipped } = await fetchClassroomAssignments(tokenBody.access_token);
       await provisionCourseModeLmsStudentLinksFromImport({
         studentId: user.id,
@@ -169,6 +195,6 @@ export async function GET(request: Request) {
     if (detail?.code === "reconnect_required") {
       return settingsRedirect(request.url, "reconnect_required", courseMode, returnTo);
     }
-    return settingsRedirect(request.url, calendar ? "calendar-connected-sync-later" : "connected-sync-later", false, returnTo);
+    return settingsRedirect(request.url, calendar ? calendarSynced ? "calendar-connected" : "calendar-connected-sync-later" : "connected-sync-later", false, returnTo);
   }
 }

@@ -9,6 +9,7 @@ import { SectionTabs } from "@/components/student-shell/section-tabs";
 import styles from "@/components/student-shell/submission.module.css";
 import { loadAssignmentSubmissionBundle } from "@/lib/assignment-submission-server";
 import { submittedWorkPath, WORK_RETURN_PATH } from "@/lib/assignment-navigation";
+import { safeCalendarReturnHref, withCalendarReturn } from "@/lib/calendar-return";
 import { formatHandInTime } from "@/lib/assignment-submission-time";
 import { subjectPresentationFor } from "@/lib/assignment-subject-presentation";
 import { createClient } from "@/lib/supabase/server";
@@ -38,7 +39,7 @@ type SubmissionReceipt = {
   payloadDigest: string | null;
 };
 
-function SubmittedAssignmentReceipt({ assignmentId, title, className, status, submittedAt, timeZone, externalSource, receipt, navigationProfile }: {
+function SubmittedAssignmentReceipt({ assignmentId, title, className, status, submittedAt, timeZone, externalSource, receipt, navigationProfile, calendarReturn }: {
   assignmentId: string;
   title: string;
   className: string;
@@ -48,6 +49,7 @@ function SubmittedAssignmentReceipt({ assignmentId, title, className, status, su
   externalSource: string | null;
   receipt: SubmissionReceipt | null;
   navigationProfile?: StudentNavigationProfile;
+  calendarReturn: string | null;
 }) {
   const graded = status === "graded";
   const provider = receipt?.providerReceiptId && receipt.provider === externalSource
@@ -58,7 +60,7 @@ function SubmittedAssignmentReceipt({ assignmentId, title, className, status, su
     <StudentShell active="Work" className={styles.root} profile={navigationProfile}>
       <main id="main-content" className={styles.main}>
         <nav aria-label="Submission navigation" className={styles.routeLinks}>
-          <Link href={WORK_RETURN_PATH} className={styles.back}><ArrowLeft size={18} aria-hidden="true" />Back to Work</Link>
+          <Link href={calendarReturn ?? WORK_RETURN_PATH} className={styles.back}><ArrowLeft size={18} aria-hidden="true" />{calendarReturn ? "Back to Calendar" : "Back to Work"}</Link>
         </nav>
         <section className={styles.receipt} aria-labelledby="submission-receipt-title">
           <div className={styles.receiptHeading}>
@@ -77,7 +79,7 @@ function SubmittedAssignmentReceipt({ assignmentId, title, className, status, su
               {receipt?.filename ? <div><dt>Submitted file</dt><dd>{receipt.filename}</dd></div> : null}
             </dl>
             <div className={styles.controls}>
-              <Link href={submittedWorkPath(assignmentId)} className={styles.primary}>View submitted work<ArrowRight size={18} aria-hidden="true" /></Link>
+              <Link href={withCalendarReturn(submittedWorkPath(assignmentId), calendarReturn)} className={styles.primary}>View submitted work<ArrowRight size={18} aria-hidden="true" /></Link>
               <Link href="/proof" className={styles.secondary}>Open Record</Link>
             </div>
             {receipt ? <details className={styles.options}>
@@ -95,8 +97,9 @@ function SubmittedAssignmentReceipt({ assignmentId, title, className, status, su
   );
 }
 
-export default async function SubmitPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SubmitPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams?: Promise<{ calendarReturn?: string }> }) {
   const { id } = await params;
+  const calendarReturn = safeCalendarReturnHref((await searchParams)?.calendarReturn);
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -114,7 +117,7 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
     photoOffsetY: profile.photo_offset_y,
   } : undefined;
   const pageState = submissionPageState(assignment.status);
-  if (pageState === "workspace") redirect(`/assignments/${id}/workspace`);
+  if (pageState === "workspace") redirect(withCalendarReturn(`/assignments/${id}/workspace`, calendarReturn));
   if (pageState === "receipt") {
     const { data: receipt } = await supabase
       .from("assignment_submission_receipts")
@@ -135,7 +138,7 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
           payloadDigest: relation?.payload_digest ?? null,
         }
       : null;
-    return <SubmittedAssignmentReceipt assignmentId={id} title={assignment.title} className={className} status={assignment.status} submittedAt={assignment.submitted_at} timeZone={profile?.timezone} externalSource={assignment.external_source} receipt={submissionReceipt} navigationProfile={navigationProfile} />;
+    return <SubmittedAssignmentReceipt assignmentId={id} title={assignment.title} className={className} status={assignment.status} submittedAt={assignment.submitted_at} timeZone={profile?.timezone} externalSource={assignment.external_source} receipt={submissionReceipt} navigationProfile={navigationProfile} calendarReturn={calendarReturn} />;
   }
 
   const [{ data: items }, { data: timeLogs }] = await Promise.all([
@@ -175,8 +178,8 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
     <StudentShell active="Work" className={styles.root} profile={navigationProfile}>
       <main id="main-content" className={styles.main}>
         <nav aria-label="Submission navigation" className={styles.routeLinks}>
-          <Link href={WORK_RETURN_PATH} className={styles.back}><ArrowLeft size={18} aria-hidden="true" />Back to Work</Link>
-          <Link href={`/assignments/${id}/workspace`} className={styles.back}><FilePenLine size={17} aria-hidden="true" />Edit in workspace</Link>
+          <Link href={calendarReturn ?? WORK_RETURN_PATH} className={styles.back}><ArrowLeft size={18} aria-hidden="true" />{calendarReturn ? "Back to Calendar" : "Back to Work"}</Link>
+          <Link href={withCalendarReturn(`/assignments/${id}/workspace`, calendarReturn)} className={styles.back}><FilePenLine size={17} aria-hidden="true" />Edit in workspace</Link>
         </nav>
         <header className={styles.title}>
           <p className={styles.eyebrow}>{className}</p>

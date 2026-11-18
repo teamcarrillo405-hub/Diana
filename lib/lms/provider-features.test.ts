@@ -42,8 +42,17 @@ describe("LMS provider feature flags", () => {
 
     expect(capabilities).toEqual({
       canvas: { import: true, submission: false },
-      google: { import: false, submission: true },
+      google: { import: false, submission: true, calendar: false },
     });
+  });
+
+  it("enables read-only Calendar independently from Classroom operations", () => {
+    expect(lmsProviderCapabilities({ DIANA_GOOGLE_CALENDAR_ENABLED: "true" }).google)
+      .toEqual({ calendar: true, import: false, submission: false });
+    expect(lmsProviderCapabilities({ DIANA_LMS_GOOGLE_IMPORT_ENABLED: "true" }).google)
+      .toEqual({ calendar: false, import: true, submission: false });
+    expect(() => assertLmsProviderFeatureEnabled("google_calendar", {}))
+      .toThrow(expect.objectContaining({ message: "Google Calendar is not enabled.", code: "provider_feature_disabled" }));
   });
 
   it("uses a machine-readable error when a provider operation is disabled", () => {

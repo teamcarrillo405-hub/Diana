@@ -5,6 +5,7 @@ import { assertLmsCredentialVaultAvailable } from "@/lib/lms/credential-policy";
 import { createClient } from "@/lib/supabase/server";
 import {
   googleClassroomOAuthScopes,
+  googleCalendarOAuthScopes,
 } from "@/lib/lms/google";
 import {
   issueLmsOAuthState,
@@ -13,15 +14,18 @@ import {
   type LmsOAuthReturnPath,
 } from "@/lib/lms/oauth-state";
 import { lmsProviderCapabilities } from "@/lib/lms/provider-features";
+import { safeCalendarReturnHref } from "@/lib/calendar-return";
 
-function settingsRedirect(requestUrl: string, status: string, courseMode = false): NextResponse {
-  const url = new URL(courseMode ? "/classes" : "/settings", requestUrl);
+function settingsRedirect(requestUrl: string, status: string, courseMode = false, returnTo: LmsOAuthReturnPath = "/settings"): NextResponse {
+  const url = new URL(courseMode ? "/classes" : returnTo, requestUrl);
   url.searchParams.set("classroom", status);
   return NextResponse.redirect(url);
 }
 
 function safeReturnPath(value: string | null): LmsOAuthReturnPath {
-  if (value === "/calendar" || value === "/dashboard") return value;
+  const calendar = safeCalendarReturnHref(value);
+  if (calendar) return calendar as LmsOAuthReturnPath;
+  if (value === "/dashboard") return value;
   return "/settings";
 }
 
@@ -32,21 +36,21 @@ function safeReturnPath(value: string | null): LmsOAuthReturnPath {
  * interactive session.
  */
 export async function GET(request: Request) {
+  const requestUrl = new URL(request.url);
+  const returnPath = safeReturnPath(requestUrl.searchParams.get("return_to"));
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return settingsRedirect(request.url, "sign-in");
-  const requestUrl = new URL(request.url);
-  const courseMode = requestUrl.searchParams.get("course_mode") === "teacher";
+  if (!user) return settingsRedirect(request.url, "sign-in", false, returnPath);
   const calendar = requestUrl.searchParams.get("calendar") === "1";
-  const returnPath = safeReturnPath(requestUrl.searchParams.get("return_to"));
+  const courseMode = !calendar && requestUrl.searchParams.get("course_mode") === "teacher";
   const capabilities = lmsProviderCapabilities();
-  if (!calendar && !capabilities.google.import && !capabilities.google.submission) {
-    return settingsRedirect(request.url, "disabled", courseMode);
+  if (calendar ? !capabilities.google.calendar : !capabilities.google.import && !capabilities.google.submission) {
+    return settingsRedirect(request.url, "disabled", courseMode, returnPath);
   }
   try {
     await assertLmsCredentialVaultAvailable();
   } catch {
-    return settingsRedirect(request.url, "vault-unavailable", courseMode);
+    return settingsRedirect(request.url, "vault-unavailable", courseMode, returnPath);
   }
   if (courseMode) {
     const { data: membership } = await (supabase as any)
@@ -57,13 +61,13 @@ export async function GET(request: Request) {
       .in("role", ["district_admin", "school_admin", "teacher"])
       .limit(1)
       .maybeSingle();
-    if (!membership) return settingsRedirect(request.url, "not-authorized", true);
+    if (!membership) return settingsRedirect(request.url, "not-authorized", true, returnPath);
   }
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const stateSecret = lmsOAuthStateSecret("google_classroom");
   if (!clientId || !process.env.GOOGLE_CLIENT_SECRET || !stateSecret) {
-    return settingsRedirect(request.url, "not-configured", courseMode);
+    return settingsRedirect(request.url, "not-configured", courseMode, returnPath);
   }
 
   const { state, cookieVerifier } = issueLmsOAuthState({
@@ -83,12 +87,11 @@ export async function GET(request: Request) {
   authUrl.searchParams.set("redirect_uri", redirectUri);
   authUrl.searchParams.set(
     "scope",
-    googleClassroomOAuthScopes({
-      calendarEnabled: calendar,
+    (calendar ? googleCalendarOAuthScopes() : googleClassroomOAuthScopes({
       importEnabled: capabilities.google.import,
       submissionEnabled: capabilities.google.submission,
       teacher: courseMode,
-    }).join(" "),
+    })).join(" "),
   );
   authUrl.searchParams.set("access_type", "offline");
   authUrl.searchParams.set("prompt", "consent"); // force a refresh_token even on re-consent

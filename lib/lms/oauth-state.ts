@@ -4,6 +4,7 @@ import {
   randomBytes,
   timingSafeEqual,
 } from "node:crypto";
+import { safeCalendarReturnHref } from "@/lib/calendar-return";
 
 export const LMS_OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
 
@@ -15,7 +16,7 @@ const SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/u;
 
 export type LmsOAuthProvider = "canvas" | "google_classroom";
 
-export type LmsOAuthReturnPath = "/calendar" | "/dashboard" | "/settings";
+export type LmsOAuthReturnPath = "/calendar" | `/calendar?${string}` | "/dashboard" | "/settings";
 
 export type CanvasOAuthStateContext = {
   institutionId: string;
@@ -135,7 +136,8 @@ function isGoogleContext(value: Record<string, unknown>): value is GoogleOAuthSt
   return (
     typeof value.courseMode === "boolean"
     && typeof value.calendar === "boolean"
-    && (value.returnTo === "/calendar" || value.returnTo === "/dashboard" || value.returnTo === "/settings")
+    && (value.returnTo === "/dashboard" || value.returnTo === "/settings"
+      || (typeof value.returnTo === "string" && safeCalendarReturnHref(value.returnTo) === value.returnTo))
   );
 }
 

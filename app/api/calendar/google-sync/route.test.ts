@@ -47,7 +47,8 @@ function query(value: unknown) {
 describe("Google Calendar LMS credential policy", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.DIANA_LMS_GOOGLE_IMPORT_ENABLED = "true";
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "true");
+    vi.stubEnv("DIANA_LMS_GOOGLE_IMPORT_ENABLED", "false");
     const store = {
       auth: { getUser: vi.fn(async () => ({ data: { user: { id: "owner-a" } } })) },
       from: vi.fn(() => query(connection)),
@@ -71,7 +72,7 @@ describe("Google Calendar LMS credential policy", () => {
   });
 
   afterEach(() => {
-    delete process.env.DIANA_LMS_GOOGLE_IMPORT_ENABLED;
+    vi.unstubAllEnvs();
   });
 
   it("persists refreshes through the fail-closed runtime writer", async () => {
@@ -88,6 +89,13 @@ describe("Google Calendar LMS credential policy", () => {
       "owner-a",
       "access-b",
     );
+  });
+
+  it("returns the completed primary-calendar reconciliation metadata", async () => {
+    const result = { imported: 0, removed: 2, applied: true,
+      syncedAt: "2026-11-17T15:00:00Z", rangeStart: "2026-10-13T15:00:00Z", rangeEnd: "2027-05-17T15:00:00Z" };
+    mocks.syncGoogleCalendarEvents.mockResolvedValue(result);
+    expect(await (await POST()).json()).toMatchObject({ ok: true, calendarId: "primary", ...result });
   });
 
   it.each([
@@ -111,16 +119,18 @@ describe("Google Calendar LMS credential policy", () => {
     const response = await POST();
 
     expect(response.status).toBe(401);
-    expect(await response.json()).toMatchObject({ code: "reconnect_required" });
+    expect(await response.json()).toMatchObject({ code: "reconnect_required", error: "Reconnect Google Calendar to continue syncing." });
   });
 
-  it("checks the Google import flag before reading the connection", async () => {
-    process.env.DIANA_LMS_GOOGLE_IMPORT_ENABLED = "false";
+  it("checks the independent Calendar flag even when Classroom import is enabled", async () => {
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "false");
+    vi.stubEnv("DIANA_LMS_GOOGLE_IMPORT_ENABLED", "true");
 
     const response = await POST();
 
     expect(response.status).toBe(503);
     expect(await response.json()).toMatchObject({ code: "provider_feature_disabled" });
+    expect((await mocks.createClient.mock.results[0].value).from).not.toHaveBeenCalled();
     expect(mocks.hydrateLmsConnectionForRuntime).not.toHaveBeenCalled();
     expect(mocks.syncGoogleCalendarEvents).not.toHaveBeenCalled();
   });

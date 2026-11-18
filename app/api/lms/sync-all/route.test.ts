@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
@@ -34,8 +34,7 @@ import { POST } from "./route";
 
 const userId = "11111111-1111-4111-8111-111111111111";
 
-function storeWithConnections() {
-  const connections = [
+function storeWithConnections(connections: Array<Record<string, unknown>> = [
     {
       id: "22222222-2222-4222-8222-222222222222",
       provider: "canvas",
@@ -46,7 +45,7 @@ function storeWithConnections() {
       provider: "google_classroom",
       config: {},
     },
-  ];
+  ]) {
   return {
     auth: { getUser: vi.fn(async () => ({ data: { user: { id: userId } } })) },
     from: vi.fn(() => {
@@ -96,7 +95,33 @@ beforeEach(() => {
   }));
 });
 
+afterEach(() => vi.unstubAllEnvs());
+
 describe("sync-all LMS identity provisioning", () => {
+  it.each(["false", "true"])("omits known Calendar-only rows without provider calls when Classroom enabled=%s", async enabled => {
+    vi.stubEnv("DIANA_LMS_GOOGLE_IMPORT_ENABLED", enabled);
+    mocks.createClient.mockResolvedValue(storeWithConnections([{ id: "calendar", provider: "google_classroom", config: {
+      calendar_enabled: true, granted_scopes: ["openid", "email", "https://www.googleapis.com/auth/calendar.readonly"],
+    } }]));
+    const response = await POST();
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ imported: 0, skipped: 0, results: [] });
+    expect(mocks.hydrate).not.toHaveBeenCalled();
+    expect(mocks.getValidGoogleToken).not.toHaveBeenCalled();
+    expect(mocks.fetchClassroomAssignments).not.toHaveBeenCalled();
+    expect(mocks.syncAssignments).not.toHaveBeenCalled();
+  });
+
+  it("still imports a mixed Classroom and Calendar grant", async () => {
+    mocks.createClient.mockResolvedValue(storeWithConnections([{ id: "mixed", provider: "google_classroom", config: {
+      calendar_enabled: true, granted_scopes: ["openid", "email", "https://www.googleapis.com/auth/calendar.readonly", "https://www.googleapis.com/auth/classroom.courses.readonly"],
+    } }]));
+    const response = await POST();
+    expect(response.status).toBe(200);
+    expect(mocks.fetchClassroomAssignments).toHaveBeenCalledOnce();
+    expect((await response.json()).results).toHaveLength(1);
+  });
+
   it("provisions Canvas and Google identities even for empty complete imports", async () => {
     const response = await POST();
     expect(response.status).toBe(200);

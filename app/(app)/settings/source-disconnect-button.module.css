@@ -1,0 +1,64 @@
+.control {
+  display: inline-grid;
+  gap: 12px;
+  min-width: 0;
+  max-width: 100%;
+  align-content: start;
+  justify-items: start;
+  color: #edf3ee;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.control.control.control button {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 10px 16px;
+  border: 1px solid #bfd6c45c;
+  border-radius: 3px;
+  background: #193025;
+  color: #edf3ee;
+  font: inherit;
+  white-space: normal;
+  cursor: pointer;
+}
+
+.control.control.control button:focus-visible {
+  outline: 3px solid var(--school-secondary, #d9c395);
+  outline-offset: 3px;
+}
+
+.control.control.control button:disabled {
+  cursor: wait;
+  opacity: .65;
+}
+
+.confirmation {
+  display: grid;
+  gap: 14px;
+  max-width: 36rem;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #d9c39566;
+  background: #11271f;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.feedback { display: block; max-width: 36rem; overflow-wrap: anywhere; }
+.feedback[data-attention] { color: #f3ce83; }
+
+@media (max-width: 600px) {
+  .control { width: 100%; }
+  .actions { width: 100%; }
+  .actions button { flex: 1 1 auto; }
+}
+
+@media (forced-colors: active) {
+  .control.control.control button, .confirmation { border-color: ButtonText; }
+}

@@ -21,7 +21,7 @@ export async function POST() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Sign in to sync your calendar." }, { status: 401 });
   try {
-    assertLmsProviderFeatureEnabled("google_import");
+    assertLmsProviderFeatureEnabled("google_calendar");
   } catch (error) {
     const detail = lmsOperationErrorDetails(error)!;
     return NextResponse.json({ error: detail.error, code: detail.code }, { status: detail.status });
@@ -34,11 +34,11 @@ export async function POST() {
     .eq("provider", "google_classroom")
     .maybeSingle();
   if (error || !connection) {
-    return NextResponse.json({ error: "Connect Google Calendar before syncing." }, { status: 409 });
+    return NextResponse.json({ error: "Connect Google Calendar before syncing.", code: "connection_required" }, { status: 409 });
   }
   const config = connection.config as Record<string, unknown>;
   if (config.calendar_enabled !== true) {
-    return NextResponse.json({ error: "Google Calendar permission is not connected yet." }, { status: 409 });
+    return NextResponse.json({ error: "Google Calendar permission is not connected yet.", code: "calendar_permission_required" }, { status: 409 });
   }
 
   try {
@@ -53,14 +53,14 @@ export async function POST() {
       });
     }
     const result = await syncGoogleCalendarEvents(supabase as any, user.id, valid.token);
-    return NextResponse.json({ ok: true, imported: result.imported, syncedAt: new Date().toISOString() });
+    return NextResponse.json({ ok: true, ...result, calendarId: "primary" });
   } catch (error) {
     const normalized = googleCredentialRejection(error)
-      ? new LmsReconnectRequiredError("google_classroom")
+      ? new LmsReconnectRequiredError("google_classroom", "Reconnect Google Calendar to continue syncing.")
       : error;
     const detail = lmsOperationErrorDetails(normalized);
     if (detail) {
-      return NextResponse.json({ error: detail.error, code: detail.code }, { status: detail.status });
+      return NextResponse.json({ error: detail.code === "reconnect_required" ? "Reconnect Google Calendar to continue syncing." : detail.error, code: detail.code }, { status: detail.status });
     }
     return NextResponse.json({ error: "Google Calendar could not sync right now. Try again shortly." }, { status: 502 });
   }

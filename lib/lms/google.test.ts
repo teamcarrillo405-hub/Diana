@@ -3,6 +3,7 @@ import {
   fetchClassroomAssignments,
   getValidGoogleToken,
   googleClassroomOAuthScopes,
+  googleCalendarOAuthScopes,
   GOOGLE_CLASSROOM_SCOPES,
   missingGoogleScopes,
 } from "./google";
@@ -151,6 +152,11 @@ describe("fetchClassroomAssignments", () => {
 });
 
 describe("Google Classroom OAuth scopes", () => {
+  it("keeps Calendar grants read-only and accepts Google's canonical email scope", () => {
+    expect(googleCalendarOAuthScopes()).toEqual(["openid", "email", "https://www.googleapis.com/auth/calendar.readonly"]);
+    expect(missingGoogleScopes(["openid", "https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/calendar.readonly"], googleCalendarOAuthScopes())).toEqual([]);
+    expect(missingGoogleScopes(["openid", "https://www.googleapis.com/auth/calendar.readonly"], googleCalendarOAuthScopes())).toEqual(["email"]);
+  });
   it("detects a partial student grant before saving the connection", () => {
     const partial = GOOGLE_CLASSROOM_SCOPES.filter((scope) => !scope.endsWith("/drive.file"));
 

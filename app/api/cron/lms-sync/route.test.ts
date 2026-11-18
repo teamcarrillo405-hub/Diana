@@ -11,6 +11,8 @@ const mocks = vi.hoisted(() => ({
   connectionUpdateEq: vi.fn(),
   fetchCanvasAssignments: vi.fn(),
   getValidCanvasToken: vi.fn(),
+  fetchClassroomAssignments: vi.fn(),
+  getValidGoogleToken: vi.fn(),
   hydrateLmsConnectionForRuntime: vi.fn(),
   persistLmsTokenRefreshForRuntime: vi.fn(),
   syncLmsAssignments: vi.fn(),
@@ -78,6 +80,10 @@ vi.mock("@/lib/lms/canvas", () => ({
   fetchCanvasAssignments: mocks.fetchCanvasAssignments,
   getValidCanvasToken: mocks.getValidCanvasToken,
 }));
+vi.mock("@/lib/lms/google", () => ({
+  fetchClassroomAssignments: mocks.fetchClassroomAssignments,
+  getValidGoogleToken: mocks.getValidGoogleToken,
+}));
 vi.mock("@/lib/lms/credential-policy", () => ({
   hydrateLmsConnectionForRuntime: mocks.hydrateLmsConnectionForRuntime,
   persistLmsTokenRefreshForRuntime: mocks.persistLmsTokenRefreshForRuntime,
@@ -128,6 +134,8 @@ describe("LMS sync cron observability", () => {
     mocks.ledgerMaybeSingle.mockReset();
     mocks.fetchCanvasAssignments.mockReset();
     mocks.getValidCanvasToken.mockReset();
+    mocks.fetchClassroomAssignments.mockReset();
+    mocks.getValidGoogleToken.mockReset();
     mocks.hydrateLmsConnectionForRuntime.mockReset();
     mocks.persistLmsTokenRefreshForRuntime.mockReset();
     mocks.syncLmsAssignments.mockReset();
@@ -135,6 +143,8 @@ describe("LMS sync cron observability", () => {
     mocks.connectionUpdateEq.mockResolvedValue({ data: null, error: null });
     mocks.getValidCanvasToken.mockResolvedValue({ token: "valid-token", refreshed: null });
     mocks.fetchCanvasAssignments.mockResolvedValue({ items: [], skipped: 0 });
+    mocks.fetchClassroomAssignments.mockResolvedValue({ items: [], skipped: 0 });
+    mocks.getValidGoogleToken.mockResolvedValue({ token: "google-token" });
     mocks.syncLmsAssignments.mockResolvedValue({ imported: 0, skipped: 0 });
     mocks.hydrateLmsConnectionForRuntime.mockImplementation(async (_ownerId, connection) => connection);
   });
@@ -142,6 +152,36 @@ describe("LMS sync cron observability", () => {
   afterEach(() => {
     vi.useRealTimers();
     delete process.env.CRON_SECRET;
+    vi.unstubAllEnvs();
+  });
+
+  it.each(["false", "true"])("excludes Calendar-only rows from Classroom calls and run counts with import=%s", async enabled => {
+    vi.stubEnv("DIANA_LMS_GOOGLE_IMPORT_ENABLED", enabled);
+    mocks.connectionRows = Array.from({ length: 251 }, (_, index) => ({
+      id: `calendar-${String(index).padStart(4, "0")}`, owner_id: "owner", provider: "google_classroom",
+      config: { calendar_enabled: true, granted_scopes: ["openid", "email", "https://www.googleapis.com/auth/calendar.readonly"] },
+    }));
+    const response = await GET(request());
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ ok: true, status: "complete", connections: 0, imported: 0, skipped: 0, failed: 0, reconnect_required: 0, continuation_required: false });
+    expect(mocks.connectionQuery).toHaveBeenCalledTimes(2);
+    expect(mocks.hydrateLmsConnectionForRuntime).not.toHaveBeenCalled();
+    expect(mocks.getValidGoogleToken).not.toHaveBeenCalled();
+    expect(mocks.fetchClassroomAssignments).not.toHaveBeenCalled();
+    expect(mocks.syncLmsAssignments).not.toHaveBeenCalled();
+    expect(mocks.ledgerUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: "succeeded", processed_count: 0, failed_count: 0 }));
+  });
+
+  it.each([
+    { calendar_enabled: true, granted_scopes: ["https://www.googleapis.com/auth/calendar.readonly", "https://www.googleapis.com/auth/classroom.courses.readonly"] },
+    { calendar_enabled: true, connection_mode: "teacher", oauth: true },
+  ])("retains mixed and legacy Classroom imports: %j", async config => {
+    vi.stubEnv("DIANA_LMS_GOOGLE_IMPORT_ENABLED", "true");
+    mocks.connectionRows = [{ id: "mixed", owner_id: "owner", provider: "google_classroom", config }];
+    const response = await GET(request());
+    expect(await response.json()).toMatchObject({ connections: 1, failed: 0, skipped: 0, status: "complete" });
+    expect(mocks.fetchClassroomAssignments).toHaveBeenCalledWith("google-token");
+    expect(mocks.syncLmsAssignments).toHaveBeenCalledOnce();
   });
 
   it("records an authorized successful run without changing its response", async () => {

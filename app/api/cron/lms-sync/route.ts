@@ -18,6 +18,7 @@ import {
 } from "@/lib/lms/credential-policy";
 import { lmsOperationErrorDetails } from "@/lib/lms/errors";
 import { assertLmsProviderFeatureEnabled } from "@/lib/lms/provider-features";
+import { isGoogleCalendarOnlyConnection } from "@/lib/lms/google-connection-metadata";
 
 /**
  * Background LMS sync — invoked by Vercel cron (see vercel.json). Keeps Canvas
@@ -79,6 +80,7 @@ async function runLmsSync(
   }
 
   let connections = 0;
+  let scannedConnections = 0;
   let imported = 0;
   let skipped = 0;
   let failed = 0;
@@ -95,7 +97,7 @@ async function runLmsSync(
       break;
     }
 
-    const remaining = MAX_CONNECTIONS_PER_RUN - connections;
+    const remaining = MAX_CONNECTIONS_PER_RUN - scannedConnections;
     if (remaining <= 0) {
       stopReason = "connection_limit";
       break;
@@ -139,6 +141,8 @@ async function runLmsSync(
       pageAdvanced = true;
       cursor = connection.id;
       attemptedConnectionIds.add(connection.id);
+      scannedConnections += 1;
+      if (isGoogleCalendarOnlyConnection(connection)) continue;
       connections += 1;
       try {
         const result = await syncConnection(supabase, connection);
@@ -157,7 +161,7 @@ async function runLmsSync(
       break;
     }
     if (!hasMore) break;
-    if (connections >= MAX_CONNECTIONS_PER_RUN) {
+    if (scannedConnections >= MAX_CONNECTIONS_PER_RUN) {
       stopReason = "connection_limit";
       break;
     }

@@ -24,6 +24,14 @@ function issueCanvas(now = Date.now()) {
 }
 
 describe("LMS OAuth state", () => {
+  it("binds the selected Calendar date, view and item in signed Google state", () => {
+    const returnTo = "/calendar?day=2026-11-17&view=week&item=google-one";
+    const issued = issueLmsOAuthState({ provider: "google_classroom", ownerId: OWNER_ID, secret: SECRET,
+      context: { courseMode: false, calendar: true, returnTo } });
+    const result = verifyLmsOAuthState({ state: issued.state, cookieVerifier: issued.cookieVerifier,
+      provider: "google_classroom", authenticatedOwnerId: OWNER_ID, secret: SECRET });
+    expect(result).toMatchObject({ ok: true, payload: { context: { returnTo } } });
+  });
   it("verifies a signed state only with its initiating user and cookie verifier", () => {
     const issued = issueCanvas();
 

@@ -22,6 +22,7 @@ import { profileSchoolYearLabel } from "./source-models";
 import { LobbyBackgroundPicker } from "./lobby-background-picker";
 import { PlayerPhoto } from "./player-photo";
 import { ProfileCenterForm } from "./profile-center-form";
+import { SourceDisconnectButton } from "./source-disconnect-button";
 import { TutorPreferences } from "./tutor/tutor-preferences";
 import { SignOutButton } from "./sign-out";
 
@@ -246,12 +247,19 @@ function SettingsShell({
                 connections.map((connection) => (
                   <div className="sd-settings-connection-row" key={connection.id}>
                     <div>
-                      <strong>{SETTINGS_PROVIDER_LABEL[connection.provider]}</strong>
+                      <strong>{connection.calendarOnly ? "Google Calendar" : SETTINGS_PROVIDER_LABEL[connection.provider]}</strong>
                       <p>{connection.message ?? (connection.schoolManaged ? "Managed by your school." : "Connected to Diana.")}</p>
                       <span className="sd-settings-connection-status" data-state={connection.state}>
                         {connection.state === "synced" ? "Connected and synced" : connection.state === "attention" ? "Needs attention" : "Connection set up"}
                       </span>
                     </div>
+                    {connection.provider === "google_classroom" ? <span className="sd-settings-connection-actions">
+                      {connection.calendarEnabled ? <Link href="/calendar">Google Calendar</Link> : null}
+                      {connection.state === "attention" ? <Link href={connection.calendarOnly
+                        ? "/api/lms/google-oauth/start?calendar=1&return_to=/calendar"
+                        : "/api/lms/google-oauth/start"}>{connection.calendarOnly ? "Reconnect Google Calendar" : "Reconnect Google Classroom"}</Link> : null}
+                      {editable ? <SourceDisconnectButton connectionId={connection.id} calendarOnly={connection.calendarOnly} /> : null}
+                    </span> : null}
                   </div>
                 ))
               ) : (

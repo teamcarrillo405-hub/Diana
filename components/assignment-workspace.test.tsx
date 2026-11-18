@@ -103,10 +103,10 @@ const baseProps = {
 };
 
 describe("AssignmentWorkspace reliability", () => {
-  it("opens checking work as its own step and flushes an edited draft before submission review", async () => {
+  it.each([undefined, "/calendar?day=2026-11-17&view=week&item=assignment-one"])("flushes review work and preserves its return context %s", async calendarReturn => {
     const problemId = "22222222-2222-4222-8222-222222222222";
     const classId = "33333333-3333-4333-8333-333333333333";
-    render(<AssignmentWorkspace {...baseProps} classId={classId} status="checking" initialProblems={[{
+    render(<AssignmentWorkspace {...baseProps} calendarReturn={calendarReturn} classId={classId} status="checking" initialProblems={[{
       id: problemId,
       problemNumber: 1,
       problemText: "Draft the central claim.",
@@ -116,7 +116,7 @@ describe("AssignmentWorkspace reliability", () => {
     }]} />);
 
     expect(screen.getByText("Review your work")).toBeVisible();
-    expect(screen.getByRole("link", { name: "Back to Work" })).toHaveAttribute("href", "/assignments?return=1");
+    expect(screen.getByRole("link", { name: calendarReturn ? "Back to Calendar" : "Back to Work" })).toHaveAttribute("href", calendarReturn ?? "/assignments?return=1");
     expect(screen.getByRole("link", { name: "Class materials" })).toHaveAttribute("href", `/classes/${classId}?materials=1&work=${assignmentId}`);
     const paper = screen.getByRole("textbox", { name: "Your draft" });
     expect(paper).toHaveValue("Existing draft");
@@ -124,7 +124,10 @@ describe("AssignmentWorkspace reliability", () => {
 
     fireEvent.change(paper, { target: { value: "Updated draft" } });
     fireEvent.click(screen.getByRole("button", { name: "Review submission" }));
-    await waitFor(() => expect(mocks.push).toHaveBeenCalledWith(`/assignments/${assignmentId}/submit`));
+    await waitFor(() => expect(mocks.push).toHaveBeenCalled());
+    const destination = new URL(mocks.push.mock.calls.at(-1)![0], "https://diana.test");
+    expect(destination.pathname).toBe(`/assignments/${assignmentId}/submit`);
+    expect(destination.searchParams.get("calendarReturn")).toBe(calendarReturn ?? null);
     expect(mocks.saveProblemWorkPatch).toHaveBeenCalledWith({ problemId, patch: { work: "Updated draft" } });
     expect(mocks.prepareAssignmentReview).toHaveBeenCalledWith({ assignmentId });
     expect(mocks.saveProblemWorkPatch.mock.invocationCallOrder[0]).toBeLessThan(mocks.prepareAssignmentReview.mock.invocationCallOrder[0]);
