@@ -47,6 +47,12 @@ Original PNG masters and the complete diagnostic screenshot matrices stay local.
 
 This is representative rendered and functional verification, not exhaustive certification of every route permutation, assignment subject or device. Existing tutoring, IEP time adjustments, teacher policy, ownership, authorship and export logic were preserved.
 
+## Cloud verification follow-up
+
+Read-only checks on November 18 confirm draft [PR #36](https://github.com/teamcarrillo405-hub/Diana/pull/36) remains open and mergeable at application commit `9aa94135`. [CI](https://github.com/teamcarrillo405-hub/Diana/actions/runs/44259810131) and [Worker image](https://github.com/teamcarrillo405-hub/Diana/actions/runs/44259809956) completed successfully. The full migration job passed after one retry for a runner port conflict, with no source change.
+
+[Authentication release readiness](implementation-qa/release-readiness.md) separates provider-backed recovery proof from the remaining SMTP, template, redirect and real-mailbox checks. The hosted email settings could not be inspected because the Dashboard requires private sign-in. Production was not changed. This follow-up adds documentation only; the verified application checks were not repeated.
+
 ## Cleanup and release boundary
 
 The primary synthetic account and child records were deleted and deletion rechecked. Every separate recovery owner was deleted and verified. The synthetic submission storage object and database binding were removed and verified. No real student account, password, Google connection or calendar event was changed. No emails were sent.
