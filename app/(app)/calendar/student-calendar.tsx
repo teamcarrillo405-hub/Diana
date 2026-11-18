@@ -6,7 +6,7 @@ import { StudentShell } from "@/components/student-shell/student-shell";
 import type { StudentNavigationProfile } from "@/components/screen-design/student-desktop-nav";
 import type { ReactNode } from "react";
 import { formatCampusName } from "@/lib/school-branding";
-import { buildCalendarReturnHref, withCalendarReturn } from "@/lib/calendar-return";
+import { buildCalendarReturnHref, safeCalendarReturnHref, withCalendarReturn } from "@/lib/calendar-return";
 import { calendarInstant } from "@/lib/calendar/time-zone";
 import { saveCalendarEvent, setCalendarEventDeleted } from "./actions";
 import { addDays, addMonths, endOfMonth, endOfWeek, format, isSameMonth, parseISO, startOfMonth, startOfWeek, eachDayOfInterval } from "date-fns";
@@ -102,13 +102,15 @@ export function StudentCalendar({ today, importedItems, savedEvents, timeZone, p
     function restoreLocation() {
       const url = new URL(window.location.href);
       const day = url.searchParams.get("day");
-      if (day && /^\d{4}-\d{2}-\d{2}$/.test(day) && !Number.isNaN(Date.parse(day))) setSelectedDay(day);
+      setSelectedDay(day && safeCalendarReturnHref(`/calendar?day=${encodeURIComponent(day)}`) ? day : initialDay ?? today);
       setView(VIEWS.find(value => value.toLowerCase() === url.searchParams.get("view")) ?? "Schedule");
       setSelectedId(url.searchParams.get("item") ?? ""); sheetDialog.current?.close();
     }
     window.addEventListener("popstate", restoreLocation);
+    // Back navigation can remount cached server props after the address changed locally.
+    restoreLocation();
     return () => window.removeEventListener("popstate", restoreLocation);
-  }, []);
+  }, [initialDay, today]);
   useEffect(() => { if (sheetOpen && phone && !sheetDialog.current?.open) sheetDialog.current?.showModal(); }, [sheetOpen, phone]);
   useEffect(() => { if (view === "Schedule") requestAnimationFrame(() => dayRefs.current.get(selectedDay)?.scrollIntoView?.({ block: "nearest", inline: "nearest" })); }, [selectedDay, view]);
 
@@ -125,7 +127,8 @@ export function StudentCalendar({ today, importedItems, savedEvents, timeZone, p
     if (focus) requestAnimationFrame(() => { dayRefs.current.get(day)?.focus({ preventScroll: true }); dayRefs.current.get(day)?.scrollIntoView?.({ block: "nearest", inline: "nearest" }); });
   }
   function persist(day: string, nextView: View, item = "") {
-    window.history.replaceState(window.history.state, "", buildCalendarReturnHref({ day, view: nextView.toLowerCase() as "schedule" | "week" | "month", item: item || undefined }));
+    // Let Next synchronize its canonical URL before a server action revalidates this page.
+    window.history.replaceState(null, "", buildCalendarReturnHref({ day, view: nextView.toLowerCase() as "schedule" | "week" | "month", item: item || undefined }));
   }
   function changeView(next: View) { setView(next); persist(selectedDay, next, selectedId); }
   function chooseItem(id: string, focus = false, reveal = false) {
