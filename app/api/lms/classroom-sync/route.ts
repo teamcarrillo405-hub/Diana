@@ -9,18 +9,12 @@ import {
 import { lmsOperationErrorDetails } from "@/lib/lms/errors";
 import { assertLmsProviderFeatureEnabled } from "@/lib/lms/provider-features";
 import { provisionCourseModeLmsStudentLinksFromImport } from "@/lib/lms/course-mode-identity";
+import { isGoogleCalendarOnlyConnection } from "@/lib/lms/google-connection-metadata";
 
 export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Sign in to sync" }, { status: 401 });
-  try {
-    assertLmsProviderFeatureEnabled("google_import");
-  } catch (error) {
-    const detail = lmsOperationErrorDetails(error)!;
-    return NextResponse.json({ error: detail.error, code: detail.code }, { status: detail.status });
-  }
-
   const { connectionId } = (await req.json()) as { connectionId: string };
   if (!connectionId) {
     return NextResponse.json({ error: "Missing connectionId" }, { status: 400 });
@@ -35,6 +29,15 @@ export async function POST(req: Request) {
     .single();
   if (connErr || !conn) {
     return NextResponse.json({ error: "Connection not found" }, { status: 404 });
+  }
+  if (isGoogleCalendarOnlyConnection(conn)) {
+    return NextResponse.json({ imported: 0, skipped: 0, source: "google_classroom", notApplicable: true });
+  }
+  try {
+    assertLmsProviderFeatureEnabled("google_import");
+  } catch (error) {
+    const detail = lmsOperationErrorDetails(error)!;
+    return NextResponse.json({ error: detail.error, code: detail.code }, { status: detail.status });
   }
 
   let securedConnection;

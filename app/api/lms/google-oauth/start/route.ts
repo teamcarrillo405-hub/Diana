@@ -5,6 +5,7 @@ import { assertLmsCredentialVaultAvailable } from "@/lib/lms/credential-policy";
 import { createClient } from "@/lib/supabase/server";
 import {
   googleClassroomOAuthScopes,
+  googleCalendarOAuthScopes,
 } from "@/lib/lms/google";
 import {
   issueLmsOAuthState,
@@ -40,10 +41,10 @@ export async function GET(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return settingsRedirect(request.url, "sign-in", false, returnPath);
-  const courseMode = requestUrl.searchParams.get("course_mode") === "teacher";
   const calendar = requestUrl.searchParams.get("calendar") === "1";
+  const courseMode = !calendar && requestUrl.searchParams.get("course_mode") === "teacher";
   const capabilities = lmsProviderCapabilities();
-  if (calendar ? !capabilities.google.import : !capabilities.google.import && !capabilities.google.submission) {
+  if (calendar ? !capabilities.google.calendar : !capabilities.google.import && !capabilities.google.submission) {
     return settingsRedirect(request.url, "disabled", courseMode, returnPath);
   }
   try {
@@ -86,12 +87,11 @@ export async function GET(request: Request) {
   authUrl.searchParams.set("redirect_uri", redirectUri);
   authUrl.searchParams.set(
     "scope",
-    googleClassroomOAuthScopes({
-      calendarEnabled: calendar,
+    (calendar ? googleCalendarOAuthScopes() : googleClassroomOAuthScopes({
       importEnabled: capabilities.google.import,
       submissionEnabled: capabilities.google.submission,
       teacher: courseMode,
-    }).join(" "),
+    })).join(" "),
   );
   authUrl.searchParams.set("access_type", "offline");
   authUrl.searchParams.set("prompt", "consent"); // force a refresh_token even on re-consent

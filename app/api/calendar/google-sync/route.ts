@@ -21,7 +21,7 @@ export async function POST() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Sign in to sync your calendar." }, { status: 401 });
   try {
-    assertLmsProviderFeatureEnabled("google_import");
+    assertLmsProviderFeatureEnabled("google_calendar");
   } catch (error) {
     const detail = lmsOperationErrorDetails(error)!;
     return NextResponse.json({ error: detail.error, code: detail.code }, { status: detail.status });

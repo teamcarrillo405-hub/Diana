@@ -13,6 +13,7 @@ import { lmsOperationErrorDetails, type LmsOperationErrorCode } from "@/lib/lms/
 import { provisionCourseModeLmsStudentLinksFromImport } from "@/lib/lms/course-mode-identity";
 import { assertLmsProviderFeatureEnabled } from "@/lib/lms/provider-features";
 import { syncLmsAssignments } from "@/lib/lms/sync";
+import { isGoogleCalendarOnlyConnection } from "@/lib/lms/google-connection-metadata";
 import type { LmsProvider, NormalizedAssignment, SyncResult } from "@/lib/lms/types";
 import { createClient } from "@/lib/supabase/server";
 
@@ -43,6 +44,7 @@ export async function POST() {
   }> = [];
 
   for (const connection of connections) {
+    if (isGoogleCalendarOnlyConnection(connection)) continue;
     try {
       if (connection.provider === "canvas") assertLmsProviderFeatureEnabled("canvas_import");
       if (connection.provider === "google_classroom") assertLmsProviderFeatureEnabled("google_import");

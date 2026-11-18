@@ -7,7 +7,7 @@ create table public.calendar_week_plans (
   primary key (owner_id, week_start)
 );
 alter table public.calendar_week_plans enable row level security;
-revoke all on public.calendar_week_plans from anon;
+revoke all on public.calendar_week_plans from anon, authenticated;
 grant select, insert, update, delete on public.calendar_week_plans to authenticated;
 create policy calendar_week_plans_owner on public.calendar_week_plans
   for all to authenticated using (owner_id = (select auth.uid()))

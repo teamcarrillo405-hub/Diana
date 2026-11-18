@@ -6,11 +6,13 @@ background. This is deployment config — the code is already shipped and reads:
 
 - `GOOGLE_CLIENT_ID`
 - `GOOGLE_CLIENT_SECRET`
+- `DIANA_GOOGLE_CALENDAR_ENABLED` for the separate read-only Calendar connection
 - `DIANA_LMS_GOOGLE_IMPORT_ENABLED`
 - `DIANA_LMS_GOOGLE_SUBMISSION_ENABLED`
 
-Until both are set, the connect button returns `?classroom=not-configured`
-(graceful). Expired, revoked, or incomplete credentials fail closed with
+Both client credentials are required. Each feature also requires its explicit
+switch. Missing credentials return `?classroom=not-configured`; disabled features
+return `?classroom=disabled`. Expired, revoked, or incomplete credentials fail closed with
 `reconnect_required`; Diana never falls back to an untracked browser token.
 
 ## 1. Google Cloud Console
@@ -49,7 +51,9 @@ Never commit these. Set them where the app runs:
 
 1. `/settings` → **Connect Google Classroom** → Google consent → returns to
    `/settings?classroom=connected` (not `not-configured`).
-2. The `google_classroom` row in `lms_connections.config` now has a `refresh_token`.
+2. The `google_classroom` row in `lms_connections.config` contains public grant
+   metadata. Access and refresh tokens are stored in the service-only
+   `integration_credentials` vault through `upsert_integration_connection`.
 3. Background sync (`/api/cron/lms-sync`, every 6h via `vercel.json`) will then
    refresh and sync Classroom automatically. Manual: the "Sync now" button.
 4. Run `npm run provider:canary` for the credential-free provider contract. See
@@ -60,11 +64,31 @@ Never commit these. Set them where the app runs:
 
 ### Google Calendar
 
+Use an existing Web application OAuth client where appropriate. Register the exact
+production redirect `https://diana-umber.vercel.app/api/lms/google-oauth/callback`,
+enable the Google Calendar API, and configure the shared client credentials in
+Vercel. Set `DIANA_GOOGLE_CALENDAR_ENABLED=true` independently from the Classroom
+flags. Leave Classroom import and submission disabled until their own certification.
+The production credential vault table and atomic writer must be available.
+
 1. Open `/calendar` and choose **Connect** in the Google Calendar section.
-2. The consent screen requests the additional `calendar.readonly` scope. Diana can read
+2. Calendar requests only `openid`, `email`, and `calendar.readonly`. It does not
+   request Classroom or Drive access or import Classroom assignments. Google may
+   include previously granted scopes when the same client is reconnected.
+   Diana preserves those grants and the connection's student/teacher mode; it
+   rejects a narrower token before overwriting an existing LMS credential.
+   A legacy LMS connection without recorded scopes needs a Classroom reconnect
+   before Calendar can safely add its grant.
+3. Diana can read
    upcoming events but cannot create, change, or delete them.
-3. Diana stores those events separately from assignments. A personal calendar event never
+4. Diana stores those events separately from assignments. A personal calendar event never
    becomes homework and opening one takes the student back to Google Calendar.
+5. The callback and **Sync Google Calendar** action reconcile a complete primary
+   calendar snapshot. The panel shows its last successful sync and imported range.
+   The Classroom background cron does not refresh Google Calendar.
+6. Verify consent, callback return to the selected Calendar date/view/item, manual
+   sync, expiry/reconnect, and deletion reconciliation with a real test account.
+   Mock contract tests cannot certify the OAuth client, audience, or API access.
 
 ## Notes
 

@@ -47,7 +47,8 @@ function query(value: unknown) {
 describe("Google Calendar LMS credential policy", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.DIANA_LMS_GOOGLE_IMPORT_ENABLED = "true";
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "true");
+    vi.stubEnv("DIANA_LMS_GOOGLE_IMPORT_ENABLED", "false");
     const store = {
       auth: { getUser: vi.fn(async () => ({ data: { user: { id: "owner-a" } } })) },
       from: vi.fn(() => query(connection)),
@@ -71,7 +72,7 @@ describe("Google Calendar LMS credential policy", () => {
   });
 
   afterEach(() => {
-    delete process.env.DIANA_LMS_GOOGLE_IMPORT_ENABLED;
+    vi.unstubAllEnvs();
   });
 
   it("persists refreshes through the fail-closed runtime writer", async () => {
@@ -121,13 +122,15 @@ describe("Google Calendar LMS credential policy", () => {
     expect(await response.json()).toMatchObject({ code: "reconnect_required", error: "Reconnect Google Calendar to continue syncing." });
   });
 
-  it("checks the Google import flag before reading the connection", async () => {
-    process.env.DIANA_LMS_GOOGLE_IMPORT_ENABLED = "false";
+  it("checks the independent Calendar flag even when Classroom import is enabled", async () => {
+    vi.stubEnv("DIANA_GOOGLE_CALENDAR_ENABLED", "false");
+    vi.stubEnv("DIANA_LMS_GOOGLE_IMPORT_ENABLED", "true");
 
     const response = await POST();
 
     expect(response.status).toBe(503);
     expect(await response.json()).toMatchObject({ code: "provider_feature_disabled" });
+    expect((await mocks.createClient.mock.results[0].value).from).not.toHaveBeenCalled();
     expect(mocks.hydrateLmsConnectionForRuntime).not.toHaveBeenCalled();
     expect(mocks.syncGoogleCalendarEvents).not.toHaveBeenCalled();
   });

@@ -1,3 +1,5 @@
+import { isGoogleCalendarOnlyConnection } from "@/lib/lms/google-connection-metadata";
+
 export type AiHistoryKind = "interaction" | "authorship";
 
 export type AiHistoryActor = "student" | "diana" | "system";
@@ -146,6 +148,7 @@ export interface LmsConnectionView {
   readonly message: string | null;
   readonly schoolManaged: boolean;
   readonly calendarEnabled?: boolean;
+  readonly calendarOnly?: boolean;
 }
 
 function calmConnectionMessage(value: unknown): string | null {
@@ -162,6 +165,9 @@ export function sanitizeLmsConnections(
   return Object.freeze(
     rows.map((row): LmsConnectionView => {
       const schoolManaged = row.provider === "clever";
+      const calendarOnly = isGoogleCalendarOnlyConnection(row);
+      const lastSyncedAt = calendarOnly && typeof row.config.calendar_last_synced_at === "string"
+        ? row.config.calendar_last_synced_at : row.last_synced_at;
       const storedStatus =
         typeof row.config.status === "string" ? row.config.status : null;
       const message = calmConnectionMessage(row.config.lastSyncError);
@@ -170,18 +176,18 @@ export function sanitizeLmsConnections(
           ? "attention"
           : schoolManaged
             ? "school-managed"
-            : row.last_synced_at
+            : lastSyncedAt
               ? "synced"
               : "pending";
 
       return {
         id: row.id,
         provider: row.provider,
-        lastSyncedAt: row.last_synced_at,
+        lastSyncedAt,
         state,
         message,
         schoolManaged,
-        ...(row.provider === "google_classroom" ? { calendarEnabled: row.config.calendar_enabled === true } : {}),
+        ...(row.provider === "google_classroom" ? { calendarEnabled: row.config.calendar_enabled === true, calendarOnly } : {}),
       };
     }),
   );

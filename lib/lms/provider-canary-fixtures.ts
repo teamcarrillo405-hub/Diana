@@ -98,6 +98,7 @@ async function mockFeatureFlagIsolation(): Promise<string> {
     "DIANA_LMS_CANVAS_SUBMISSION_ENABLED",
     "DIANA_LMS_GOOGLE_IMPORT_ENABLED",
     "DIANA_LMS_GOOGLE_SUBMISSION_ENABLED",
+    "DIANA_GOOGLE_CALENDAR_ENABLED",
   ] as const;
 
   for (const enabledName of names) {
@@ -108,6 +109,7 @@ async function mockFeatureFlagIsolation(): Promise<string> {
       capabilities.canvas.submission,
       capabilities.google.import,
       capabilities.google.submission,
+      capabilities.google.calendar,
     ];
     assertFixture(enabled.filter(Boolean).length === 1, `${enabledName} was not isolated`);
   }
@@ -118,6 +120,7 @@ async function mockFeatureFlagIsolation(): Promise<string> {
     DIANA_LMS_CANVAS_SUBMISSION_ENABLED: "false",
     DIANA_LMS_GOOGLE_IMPORT_ENABLED: "false",
     DIANA_LMS_GOOGLE_SUBMISSION_ENABLED: "false",
+    DIANA_GOOGLE_CALENDAR_ENABLED: "false",
   }, () => withFetch(async () => {
     unexpectedNetwork += 1;
     throw new Error("disabled provider operation reached the network");
@@ -149,7 +152,7 @@ async function mockFeatureFlagIsolation(): Promise<string> {
     );
   }));
   assertFixture(unexpectedNetwork === 0, "a disabled provider operation contacted the network");
-  return "isolated all four import/submission switches and blocked disabled operations before fetch";
+  return "isolated Calendar and all four import/submission switches and blocked disabled operations before fetch";
 }
 
 function mockOAuthScopeIsolation(): string {
