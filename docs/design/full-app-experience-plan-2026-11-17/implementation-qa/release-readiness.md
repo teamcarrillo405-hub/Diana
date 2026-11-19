@@ -1,5 +1,21 @@
 # Authentication release readiness
 
+## Signed-in release follow-up, November 18
+
+- The owner signed into the hosted Dashboard. The verified backend is oitipayrriupcitgmzju, displayed as diana-staging, with main marked Production.
+- The hosted Site URL was the beta-staging alias. It is now saved as https://diana-umber.vercel.app. This was verified in the UI after Save returned to its clean disabled state.
+- The redirect allow-list still has only the prior beta-staging wildcard. The exact canonical callback and its query-parameter variant are prepared in the Add URL dialog but are **not saved**: automatic approval review rejected the persistent authentication-rule change pending the owner's exact-scope approval. No workaround was attempted.
+- Custom SMTP is disabled and the Auth Hooks list is empty. The local Diana Resend configuration uses Diana <onboarding@resend.dev>; its key can read an empty domain list. Those local facts do not establish the protected production Resend account's sender/domain status. Existing production RESEND_FROM and RESEND_API_KEY entries are sensitive and were not decrypted by the connector.
+- Published signup-confirmation and password-reset templates use ConfirmationURL. They remain unchanged and compatible with the current production callback. The old production callback only handles a code; do not activate candidate token-hash-only links against it. Actual delivery and the new recovery round trip still require proof.
+- The existing production LMS_OAUTH_STATE_SECRET was verified through the trusted environment read to satisfy the candidate's trimmed 32-character minimum. Its value was not printed, copied to a browser, committed or changed.
+- PR36 remains draft/open/mergeable at fc28598f. CI44331359329 and Worker image44331359549 passed; both Vercel contexts succeeded. Production remains READY at25477d59. There are no migration or Edge Function changes in this PR.
+- A fixed-origin, merge-SHA-pinned live desktop/phone gate is prepared separately. Only read-only planning, syntax and scoped lint have run; it is not live evidence yet.
+
+The owner has been asked for the intended sender domain/provider and approval of the two prepared callback addresses. Merge and publication remain held in the requested order until the email prerequisites are resolved. No test email was sent during this follow-up.
+
+## Earlier read-only investigation
+
+
 Reviewed on 2026-11-18 against branch head 9aa94135. This is a read-only release check. It adds no cloud configuration, email request, account mutation, or new application behavior.
 
 ## Current conclusion
