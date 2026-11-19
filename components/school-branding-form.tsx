@@ -23,10 +23,12 @@ export const SchoolBrandingForm = forwardRef<SchoolBrandingFormHandle, {
   initialSchoolBranding: SchoolBrandingValues;
   onSaved?: () => void;
   disabled?: boolean;
+  refreshOnSave?: boolean;
 }>(function SchoolBrandingForm({
   initialSchoolBranding,
   onSaved,
   disabled = false,
+  refreshOnSave = true,
 }, ref) {
   const router = useRouter();
   const id = useId();
@@ -81,7 +83,7 @@ export const SchoolBrandingForm = forwardRef<SchoolBrandingFormHandle, {
       if (!result.ok) { setMessage(result.error); return false; }
       lastSaved.current = values;
       setMessage("School look saved.");
-      router.refresh();
+      if (refreshOnSave) router.refresh();
       onSaved?.();
       return true;
     } catch {

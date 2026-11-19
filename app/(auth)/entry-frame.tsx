@@ -14,6 +14,6 @@ export function EntryFrame({
       <aside className={styles.welcome} aria-label="Welcome to Diana"><p className={styles.eyebrow}>Your campus starts here</p><h2>A place to<br />find your next step.</h2><p>Bring your work. Make space to think.<br />Diana will meet you there.</p></aside>
       <section className={styles.form}>{children}</section>
     </main>
-    <footer className={styles.footer}><Link href="/privacy.html">Privacy</Link><Link href="/trust">How Diana supports you</Link></footer>
+    <footer className={styles.footer}><a href="/privacy.html">Privacy</a><Link href="/trust">How Diana supports you</Link></footer>
   </div>;
 }

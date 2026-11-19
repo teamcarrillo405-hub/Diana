@@ -133,7 +133,11 @@ export async function updateSession(
   const path = request.nextUrl.pathname;
 
   if (!user && isUnknownPublicPath(path)) {
-    return NextResponse.rewrite(new URL("/public-not-found", request.url), { status: 404 });
+    return NextResponse.rewrite(new URL("/public-not-found", request.url), {
+      status: 404,
+      // Preserve the nonce and CSP generated for this request in the render.
+      request: { headers: requestHeaders },
+    });
   }
 
   if (!user && !isPublic(path)) {

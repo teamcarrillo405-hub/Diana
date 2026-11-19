@@ -230,7 +230,9 @@ export function ScreenDesignOnboarding({
           return;
         }
 
+        submittingRef.current = false;
         setStep("connect");
+        router.replace("/onboarding?sdState=connect");
       } catch {
         submittingRef.current = false;
         setFeedback("Those choices are still selected. Try saving again when you are ready.");
@@ -935,7 +937,7 @@ function PersonalizeScreen({
 
           <section className={personalizeStyles.schoolBranding} aria-label="School look">
             <p className={personalizeStyles.schoolBrandingHint}>Optional. Your choices will be saved when you continue.</p>
-            <SchoolBrandingForm ref={schoolBrandingRef} disabled={pending} initialSchoolBranding={initialSchoolBranding} />
+            <SchoolBrandingForm ref={schoolBrandingRef} disabled={pending} initialSchoolBranding={initialSchoolBranding} refreshOnSave={false} />
           </section>
           <ProfilePhotoOption className={personalizeStyles.photo} />
           <footer className={personalizeStyles.footer}>

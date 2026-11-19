@@ -35,6 +35,19 @@ describe("SchoolBrandingForm", () => {
     expect(mocks.refresh).not.toHaveBeenCalled();
   });
 
+  it("saves onboarding branding without refreshing the active setup step", async () => {
+    const onSaved = vi.fn();
+    render(<SchoolBrandingForm refreshOnSave={false} onSaved={onSaved} initialSchoolBranding={{ primaryColor: null, secondaryColor: null, logoDataUrl: null }} />);
+    fireEvent.change(screen.getByLabelText("School name"), { target: { value: "Tigard High School" } });
+    fireEvent.change(screen.getByLabelText("First school color"), { target: { value: "#24563b" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save school look" }));
+
+    await waitFor(() => expect(saveSchoolBranding).toHaveBeenCalledWith({ schoolName: "Tigard High School", primaryColor: "#24563b", secondaryColor: null, logoDataUrl: null }));
+    expect(await screen.findByRole("status")).toHaveTextContent("School look saved.");
+    expect(onSaved).toHaveBeenCalledOnce();
+    expect(mocks.refresh).not.toHaveBeenCalled();
+  });
+
   it("saves the entered school name and keeps previously selected colors", async () => {
     render(<SchoolBrandingForm initialSchoolBranding={{ schoolName: null, primaryColor: "#8C1D40", secondaryColor: "#FFC627", logoDataUrl: null }} />);
     fireEvent.change(screen.getByLabelText("School name"), { target: { value: "Tigard High School" } });

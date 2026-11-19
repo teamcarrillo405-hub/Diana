@@ -10,10 +10,11 @@ import { saveSchoolBranding } from "@/app/(app)/settings/school-branding-actions
 import { ScreenDesignOnboarding } from "./screendesign-onboarding";
 
 const push = vi.fn();
+const replace = vi.fn();
 const refresh = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push, refresh }),
+  useRouter: () => ({ push, replace, refresh }),
 }));
 
 vi.mock("./actions", () => ({
@@ -31,6 +32,7 @@ vi.mock("@/app/(app)/settings/school-branding-actions", () => ({
 describe("ScreenDesignOnboarding", () => {
   beforeEach(() => {
     push.mockReset();
+    replace.mockReset();
     refresh.mockReset();
     vi.mocked(completeScreenDesignOnboarding).mockReset();
     vi.mocked(saveSchoolBranding).mockReset();
@@ -86,6 +88,8 @@ describe("ScreenDesignOnboarding", () => {
 
     await waitFor(() => expect(saveSchoolBranding).toHaveBeenCalledWith({ schoolName: "Tigard High School", primaryColor: "#123456", secondaryColor: "#abcdef", logoDataUrl: expect.stringMatching(/^data:image\/png;base64,/) }));
     expect(await screen.findByRole("heading", { name: "Connect your school" })).toBeInTheDocument();
+    expect(replace).toHaveBeenCalledWith("/onboarding?sdState=connect");
+    expect(refresh).not.toHaveBeenCalled();
   });
 
   it("keeps onboarding open when the school look cannot be saved", async () => {
@@ -179,8 +183,18 @@ describe("ScreenDesignOnboarding", () => {
     expect(screen.getByLabelText("Canvas school address")).toBeRequired();
     expect(screen.queryByRole("heading", { name: "Profile photo Optional" })).not.toBeInTheDocument();
 
+    expect(replace).toHaveBeenCalledWith("/onboarding?sdState=connect");
+    expect(refresh).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
     expect(screen.getByRole("heading", { name: "Make it yours" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("radio", { name: /Evening/iu }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    await waitFor(() => expect(completeScreenDesignOnboarding).toHaveBeenCalledTimes(2));
+    expect(completeScreenDesignOnboarding).toHaveBeenLastCalledWith(expect.objectContaining({ studySchedulePreference: "late_night" }));
+    expect(await screen.findByRole("heading", { name: "Connect your school" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Skip for now" }));
+    expect(push).toHaveBeenCalledWith("/dashboard");
   });
 
   it("does not advertise provider connections that are disabled", () => {

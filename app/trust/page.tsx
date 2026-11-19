@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PublicPageFrame } from "@/components/marketing/public-page-frame";
 
 export const metadata: Metadata = {
@@ -25,7 +24,7 @@ export default function TrustPage() {
         </article>
         <article id="legal">
           <h2>Privacy and terms</h2>
-          <p>Read how Diana handles account data, sharing, and access in the <Link href="/privacy.html">privacy notice</Link> and <Link href="/privacy.html#terms">terms</Link>.</p>
+          <p>Read how Diana handles account data, sharing, and access in the <a href="/privacy.html">privacy notice</a> and <a href="/privacy.html#terms">terms</a>.</p>
         </article>
         <article id="contact">
           <h2>Questions</h2>

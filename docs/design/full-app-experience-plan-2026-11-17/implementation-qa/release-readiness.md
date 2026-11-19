@@ -1,5 +1,18 @@
 # Authentication release readiness
 
+## Owner-selected live email service, November 19
+
+- The owner explicitly approved the two canonical callback rules. Both are saved and observed in the hosted Dashboard: https://diana-umber.vercel.app/auth/callback and its query-parameter variant ending in ?**. The canonical Site URL remains saved.
+- The owner selected Supabase's current built-in email service. Custom SMTP and Auth Hooks remain disabled. This service is restricted to project-team addresses and two messages per hour; it is not general student email delivery. Source: https://supabase.com/docs/guides/auth/auth-smtp.
+- A real Dashboard recovery request arrived in the signed-in owner mailbox from noreply@mail.app.supabase.io. After publication, a fresh request from Diana's actual Forgot password form also arrived. Its link preserved the approved callback, reset destination and return-to-security context. The same browser completed the PKCE callback and displayed the ready new-password form at the canonical live origin.
+- The ready recovery form fit a 390 by 844 phone viewport without horizontal overflow. No password was entered or changed. Temporary recovery permission was then cleared, and the unavailable form was observed. No raw reset link or session is in repository evidence. The first test link appeared in tool output, was replaced by the fresh request, and the fresh link was consumed during verification.
+- New-student signup confirmation email is not certified by this owner/team recovery test. The prior marked-disposable provider password tests remain separate from real email-delivery evidence.
+- PR36 was merged at d60e1bd364ae1847e524a9e5fc4f90b804be0fe9. The canonical origin served READY deployment dpl_D8ceoSWZD4gD8jVLhpsrMZopq7sq with that exact SHA. Main CI44487223949 and Worker image44487224014 passed.
+- The initial public pass covered 14 routes at desktop and phone widths. It identified the legacy public404 recovery design, nonce forwarding on its rewrite, and static legal-link prefetch noise. A marked-disposable authenticated pass also exposed a real first-step onboarding redirect race. The follow-up addresses those findings and makes the QA harness fail fast and checkpoint evidence. Subsequent exact-deployment results and cleanup records belong in the local release report, not an inferred all-pages claim.
+
+The November18 findings below are historical and superseded by the explicitly scoped observations above. Using the built-in sender does not enable unrestricted student mail, and no confirmation requirement was disabled.
+
+
 ## Signed-in release follow-up, November 18
 
 - The owner signed into the hosted Dashboard. The verified backend is oitipayrriupcitgmzju, displayed as diana-staging, with main marked Production.

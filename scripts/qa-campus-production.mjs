@@ -38,7 +38,8 @@ let blockedProviderCalls = 0;
 class GateError extends Error {}
 function requireThat(value, message) { if (!value) throw new GateError(message); }
 function safeError(error) { return error instanceof GateError ? error.message : 'A browser, local utility or provider response stopped this check; private diagnostics were omitted.'; }
-async function check(name, fn) { try { const detail = await fn(); report.checks.push({ name, ok: true, ...detail }); } catch (error) { report.checks.push({ name, ok: false, error: safeError(error) }); } }
+async function checkpoint() { if (canWriteReport) { await mkdir(output, { recursive: true }); await writeFile(join(output, resultFile), JSON.stringify(report, null, 2)); } }
+async function check(name, fn, required = false) { try { const detail = await fn(); report.checks.push({ name, ok: true, ...detail }); } catch (error) { report.checks.push({ name, ok: false, error: safeError(error) }); if (required) throw error; } finally { await checkpoint(); } }
 async function pin() {
   const response = await fetch(ORIGIN + '/api/build-info', { redirect: 'manual', cache: 'no-store', signal: AbortSignal.timeout(15000) });
   requireThat(response.status === 200 && new URL(response.url).origin === ORIGIN, 'Canonical build identity was not available directly.');
@@ -147,25 +148,43 @@ async function capture(page, viewport, slug, path, expectedScene) {
     if (await nav.count()) { const boxes = await nav.evaluateAll(links => links.map(link => { const b = link.getBoundingClientRect(); return { width: b.width, height: b.height, left: b.left, right: b.right }; })); requireThat(boxes.length === 5 && boxes.every(b => b.width >= 44 && b.height >= 44 && b.left >= 0 && b.right <= viewport.width + 1), 'Five primary navigation targets do not fit.'); }
     row.ok = true; row.scene = metrics.scene;
   } catch (error) { row.error = safeError(error); }
-  finally { page.off('pageerror', onError); page.off('response', onResponse); row.screenshot = await shot(page, viewport, slug).catch(() => null); report.captures.push(row); }
+  finally { page.off('pageerror', onError); page.off('response', onResponse); row.screenshot = await shot(page, viewport, slug).catch(() => null); report.captures.push(row); await checkpoint(); }
 }
 async function signInAndOnboard(page, viewport) {
-  await profile({ onboarded_at: null });
-  await open(page, '/login'); await settled(page); await shot(page, viewport, 'sign-in');
-  await page.getByLabel('Email', { exact: true }).fill(fixture.email); await page.getByLabel('Password', { exact: true }).fill(fixture.password);
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await page.getByRole('heading', { name: 'Make it yours', exact: true }).waitFor();
-  await page.getByRole('radio', { name: 'Time Management', exact: true }).click();
-  await page.getByRole('radiogroup', { name: 'Study schedule', exact: true }).getByRole('radio', { name: 'Morning', exact: true }).click();
-  await page.getByLabel('School name', { exact: true }).fill('Release Preview High School');
-  await page.getByLabel('First school color', { exact: true }).fill('#24563b'); await page.getByLabel('Second school color', { exact: true }).fill('#c6a66b');
-  await shot(page, viewport, 'onboarding-personalize');
-  await page.getByRole('button', { name: 'Continue', exact: true }).click(); await page.getByRole('heading', { name: 'Connect your school', exact: true }).waitFor();
-  await shot(page, viewport, 'onboarding-connect'); await page.getByRole('button', { name: 'Skip for now', exact: true }).click();
-  await page.locator('[data-student-navigation]').waitFor();
-  const saved = await admin.from('profiles').select('onboarded_at,school_name,school_primary_color,school_secondary_color,consent_ai,daily_token_budget').eq('user_id', fixture.userId).single();
-  requireThat(!saved.error && saved.data.onboarded_at && saved.data.school_name === 'Release Preview High School' && saved.data.school_primary_color?.toLowerCase() === '#24563b' && saved.data.school_secondary_color?.toLowerCase() === '#c6a66b' && saved.data.consent_ai === false && saved.data.daily_token_budget === 0, 'Actual onboarding did not retain the fixture preferences and provider boundaries.');
-  return { actualUiSignIn: true, actualOnboardingSave: true, connectionsSkipped: true };
+  const diagnostic = { viewport: viewport.name, stage: 'prepare', authResponses: [], alerts: [] };
+  (report.signInDiagnostics ??= []).push(diagnostic);
+  const onResponse = response => { const url = new URL(response.url()); if (url.origin === PROJECT && url.pathname.startsWith('/auth/v1/')) diagnostic.authResponses.push({ path: url.pathname, status: response.status() }); };
+  page.on('response', onResponse);
+  try {
+    await profile({ onboarded_at: null });
+    await open(page, '/login'); await settled(page); await shot(page, viewport, 'sign-in');
+    diagnostic.stage = 'sign-in';
+    await page.getByLabel('Email', { exact: true }).fill(fixture.email); await page.getByLabel('Password', { exact: true }).fill(fixture.password);
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    const entered = await Promise.race([page.getByRole('heading', { name: 'Make it yours', exact: true }).waitFor({ timeout: 30000 }).then(() => true), page.locator('.entry-error[role=alert]').waitFor({ timeout: 30000 }).then(() => false)]);
+    requireThat(entered, 'The actual sign-in form reported a rejection.');
+    diagnostic.stage = 'personalize';
+    await page.getByRole('radio', { name: 'Time Management', exact: true }).click();
+    await page.getByRole('radiogroup', { name: 'Study schedule', exact: true }).getByRole('radio', { name: 'Morning', exact: true }).click();
+    await page.getByLabel('School name', { exact: true }).fill('Release Preview High School');
+    await page.getByLabel('First school color', { exact: true }).fill('#24563b'); await page.getByLabel('Second school color', { exact: true }).fill('#c6a66b');
+    await shot(page, viewport, 'onboarding-personalize');
+    diagnostic.stage = 'continue-to-connect';
+    await page.getByRole('button', { name: 'Continue', exact: true }).click(); await page.getByRole('heading', { name: 'Connect your school', exact: true }).waitFor();
+    diagnostic.stage = 'skip-connections';
+    await shot(page, viewport, 'onboarding-connect'); await page.getByRole('button', { name: 'Skip for now', exact: true }).click();
+    await page.locator('[data-student-navigation]').waitFor();
+    diagnostic.stage = 'verify-save';
+    const saved = await admin.from('profiles').select('onboarded_at,school_name,school_primary_color,school_secondary_color,consent_ai,daily_token_budget').eq('user_id', fixture.userId).single();
+    requireThat(!saved.error && saved.data.onboarded_at && saved.data.school_name === 'Release Preview High School' && saved.data.school_primary_color?.toLowerCase() === '#24563b' && saved.data.school_secondary_color?.toLowerCase() === '#c6a66b' && saved.data.consent_ai === false && saved.data.daily_token_budget === 0, 'Actual onboarding did not retain the fixture preferences and provider boundaries.');
+    diagnostic.stage = 'complete';
+    return { actualUiSignIn: true, actualOnboardingSave: true, connectionsSkipped: true };
+  } catch {
+    diagnostic.path = new URL(page.url()).pathname;
+    diagnostic.alerts = (await page.locator('.entry-error[role=alert]').allTextContents().catch(() => [])).map(value => value.replaceAll(fixture.email, '[synthetic email]').slice(0, 300));
+    diagnostic.failureScreenshot = await shot(page, viewport, 'auth-stopped').catch(() => null);
+    throw new GateError('Actual sign-in/onboarding stopped at ' + diagnostic.stage + '.');
+  } finally { page.off('response', onResponse); await checkpoint(); }
 }
 function cases() { return [
   ['lobby-now', '/dashboard?view=now'], ['check-in', '/dashboard?view=check-in'], ['this-week', '/dashboard?view=week'], ['work', '/assignments', 'work'], ['workspace', '/assignments/' + fixture.assignmentId + '/workspace'], ['classes', '/classes', 'classes'], ['class-detail', '/classes/' + fixture.classId], ['calendar', '/calendar', 'calendar'], ['more', '/more?section=study', 'commons'], ['settings', '/settings', 'services'], ['security', '/settings?section=security', 'services'], ['notes', '/notes', 'library'], ['note-detail', '/notes/' + fixture.noteId, 'library'], ['quiz', '/study', 'seminar'], ['practice', '/study-artifacts/' + fixture.practiceId, 'seminar'], ['review', '/assignments/' + fixture.readyId + '/submit?step=review'], ['hand-in', '/assignments/' + fixture.readyId + '/submit?step=hand-in'],
@@ -184,7 +203,7 @@ async function interactions(page, viewport) {
 }
 async function downloadPdf(page, viewport) {
   await owner(); await open(page, '/assignments/' + fixture.readyId + '/submit?step=hand-in'); await settled(page);
-  const promise = page.waitForEvent('download', { timeout: 30000 }); await page.getByRole('button', { name: 'Download PDF', exact: true }).click(); const download = await promise;
+  const [download] = await Promise.all([page.waitForEvent('download', { timeout: 60000 }), page.getByRole('button', { name: /^download pdf$/i }).click()]);
   requireThat(!await download.failure(), 'The actual PDF download did not complete.'); const file = join(output, viewport.name + '-assignment.pdf'); await download.saveAs(file);
   const bytes = await readFile(file), pdf = await PDFDocument.load(bytes); requireThat(bytes.length > 1000 && pdf.getPageCount() > 0, 'The downloaded PDF is empty or invalid.');
   const extracted = await promisify(execFile)('pdftotext', ['-layout', file, '-'], { maxBuffer: 2000000 }); requireThat(['Equation reflection', 'Subtracting five keeps both sides equal', 'x = 5'].every(value => extracted.stdout.includes(value)), 'The downloaded PDF lacks the synthetic assignment or saved work.');
@@ -238,7 +257,7 @@ try {
     await seed(); browser = await chromium.launch({ headless: true });
     for (const viewport of viewports) {
       const context = await contextFor(viewport), page = await context.newPage();
-      try { await check('sign-in-onboarding-' + viewport.name, () => signInAndOnboard(page, viewport));
+      try { await check('sign-in-onboarding-' + viewport.name, () => signInAndOnboard(page, viewport), true);
         for (const [slug, path, scene] of cases()) await capture(page, viewport, slug, path, scene);
         await check('owned-interactions-' + viewport.name, () => interactions(page, viewport));
         await check('actual-pdf-' + viewport.name, () => downloadPdf(page, viewport));

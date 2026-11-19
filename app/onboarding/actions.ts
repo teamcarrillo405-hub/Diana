@@ -145,6 +145,8 @@ export async function completeScreenDesignOnboarding(
     };
   }
 
-  revalidatePath("/", "layout");
+  // Keep this route mounted until the client opens the optional connection step.
+  // Revalidating it here applies the completed-profile redirect before that
+  // navigation can finish. The destination reads the updated profile directly.
   return { ok: true };
 }

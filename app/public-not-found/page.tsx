@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { DianaRecoveryScreen } from "@/components/screen-design/diana-recovery-screen";
+
+// Recovery rewrites must render with the current request's nonce.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Page Not Found",
@@ -8,10 +11,12 @@ export const metadata: Metadata = {
 
 export default function PublicNotFoundPage() {
   return (
-    <main className="dpl-action-page">
-      <h1>That Page Is Not Here</h1>
-      <p>Return to Diana to see how the homework workspace works.</p>
-      <Link className="dpl-sub-cta" href="/">Back to Diana</Link>
-    </main>
+    <DianaRecoveryScreen
+      eyebrow="Page unavailable"
+      title="This page is not here anymore."
+      message="Return to the start and choose where you want to go next."
+      backHref="/"
+      backLabel="Back to start"
+    />
   );
 }

@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { updateSession } from "./middleware";
-import { config as middlewareConfig } from "../../middleware";
+import { config as middlewareConfig, middleware } from "../../middleware";
 
 vi.mock("@supabase/ssr", () => ({
   createServerClient: vi.fn(),
@@ -173,5 +173,32 @@ describe("Supabase middleware", () => {
 
     expect(response.status).toBe(404);
     expect(response.headers.get("location")).toBeNull();
+    expect(response.headers.get("x-middleware-rewrite")).toBe("http://diana.test/public-not-found");
+  });
+
+  it("uses a fresh matching nonce for each public recovery rewrite", async () => {
+    const nonces = [];
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const request = new NextRequest("http://diana.test/not-a-real-page", {
+        headers: {
+          "x-nonce": "untrusted-incoming-nonce",
+          "Content-Security-Policy": "script-src 'unsafe-inline'",
+        },
+      });
+      const response = await middleware(request);
+      const nonce = response.headers.get("x-middleware-request-x-nonce");
+      const policy = response.headers.get("Content-Security-Policy");
+
+      expect(response.status).toBe(404);
+      expect(response.headers.get("location")).toBeNull();
+      expect(nonce).toBeTruthy();
+      expect(nonce).not.toBe("untrusted-incoming-nonce");
+      expect(policy).toContain(`'nonce-${nonce}'`);
+      const scriptPolicy = policy?.split(";").find((directive) => directive.trim().startsWith("script-src "));
+      expect(scriptPolicy).not.toContain("'unsafe-inline'");
+      expect(response.headers.get("x-middleware-request-content-security-policy")).toBe(policy);
+      nonces.push(nonce);
+    }
+    expect(nonces[0]).not.toBe(nonces[1]);
   });
 });
