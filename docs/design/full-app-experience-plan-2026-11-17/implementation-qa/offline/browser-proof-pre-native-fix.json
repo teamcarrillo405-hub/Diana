@@ -1,0 +1,117 @@
+{
+  "generatedAt": "2026-11-18T06:59:55.190Z",
+  "origin": "http://127.0.0.1:57812",
+  "checks": [
+    {
+      "name": "online offline-page response",
+      "pass": true,
+      "detail": "200"
+    },
+    {
+      "name": "production service worker active and controlling",
+      "pass": true,
+      "detail": "{\"script\":\"http://127.0.0.1:57812/sw.js\",\"controlled\":true}"
+    },
+    {
+      "name": "public campus assets requested online",
+      "pass": true,
+      "detail": "[{\"path\":\"/assets/fonts/roboto-slab-latin.woff2\",\"status\":200},{\"path\":\"/assets/work/college-classroom-1920.webp\",\"status\":200}]"
+    },
+    {
+      "name": "campus font and scene in shared cache",
+      "pass": true,
+      "detail": "31 cache entries"
+    },
+    {
+      "name": "no private route, RSC, API, upload, or student logo cached",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "offline reload renders saved study pack page",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "synthetic owner-bound pack opens after offline reload",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "offline saved pack search",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "offline draft save",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "offline draft survives reload",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "offline page uses campus shell and wordmark",
+      "pass": true,
+      "detail": "{\"wordmark\":true,\"scene\":\"url(/assets/work/college-classroom-1920.webp)\",\"body\":\"rgb(15, 23, 42)\"}"
+    },
+    {
+      "name": "no fabricated percentage on offline page",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "cached campus assets available while offline",
+      "pass": true,
+      "detail": "[{\"path\":\"/assets/fonts/roboto-slab-latin.woff2\",\"status\":200},{\"path\":\"/assets/work/college-classroom-1920.webp\",\"status\":200}]"
+    },
+    {
+      "name": "offline navigation falls back to saved packs",
+      "pass": true,
+      "detail": "{\"status\":200,\"fromWorker\":true,\"title\":\"Diana | Homework Workspace for Students\",\"url\":\"http://127.0.0.1:57812/offline-qa-unvisited-8ba07a9d-49a3-4d29-b309-5abb20f67e02\",\"online\":false,\"heading\":\"SAVED STUDY PACKS\",\"text\":\"SKIP TO MAIN\\nDIANA\\nLOBBY\\nWORK\\nCLASSES\\nCALENDAR\\nMORE\\nS\\nBack to Work\\nSAVED STUDY PACKS\\n\\nOpen saved packs here. Reconnect to return to your assignments.\\n\\nSYNTHETIC BIOLOGY REVIEW\\nFind a passage\\nPage 1\\n\\nChlorophyll helps plants capture light for photosynthesis.\\n\\nPractice\\nExplain\\n\\nExplain how plants capt\"}"
+    },
+    {
+      "name": "offline phone layout has no horizontal overflow",
+      "pass": true,
+      "detail": "{\"scroll\":390,\"width\":390}"
+    },
+    {
+      "name": "failed scene image leaves readable fallback",
+      "pass": true,
+      "detail": "{\"bg\":\"rgb(17, 24, 19)\",\"color\":\"rgb(255, 248, 232)\",\"heading\":\"SAVED STUDY PACKS\"}"
+    },
+    {
+      "name": "native error escapes untrusted text 1440",
+      "pass": true,
+      "detail": "{\"img\":0,\"scroll\":1440,\"width\":1440,\"retryHeight\":51.59375,\"href\":\"http://127.0.0.1:3140/?input=\\\"<svg onload=alert(1)>\"}"
+    },
+    {
+      "name": "native error retry target at least 44px 1440",
+      "pass": true,
+      "detail": "51.59375px"
+    },
+    {
+      "name": "native error no horizontal overflow 1440",
+      "pass": true,
+      "detail": "{\"scroll\":1440,\"width\":1440}"
+    },
+    {
+      "name": "native error escapes untrusted text 390",
+      "pass": true,
+      "detail": "{\"img\":0,\"scroll\":408,\"width\":390,\"retryHeight\":51.59375,\"href\":\"http://127.0.0.1:3140/?input=\\\"<svg onload=alert(1)>\"}"
+    },
+    {
+      "name": "native error retry target at least 44px 390",
+      "pass": true,
+      "detail": "51.59375px"
+    },
+    {
+      "name": "native error no horizontal overflow 390",
+      "pass": false,
+      "detail": "{\"scroll\":408,\"width\":390}"
+    }
+  ],
+  "pageErrors": []
+}

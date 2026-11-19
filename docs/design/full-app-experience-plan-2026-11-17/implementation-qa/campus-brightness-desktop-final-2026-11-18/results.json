@@ -1,0 +1,288 @@
+{
+  "version": "campus-experience-browser-qa-v1",
+  "startedAt": "2026-11-18T14:57:53.615Z",
+  "base": "http://127.0.0.1:3140",
+  "run": "campus-brightness-desktop-final-2026-11-18",
+  "scope": "Brightness correction only: current gallery scenes and entry/setup states at desktop and phone sizes. No unrelated interaction or subject regression rerun.",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1000
+    }
+  ],
+  "results": [
+    {
+      "slug": "more-study",
+      "path": "/more?section=study",
+      "family": "commons",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "More",
+      "scene": "commons",
+      "mode": "scenic",
+      "missingVisibleImages": [],
+      "mainWidth": 1440,
+      "finalPath": "/more",
+      "screenshot": "desktop-more-study.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings?section=profile",
+      "family": "services",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Profile",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 800,
+      "finalPath": "/settings",
+      "screenshot": "desktop-settings-profile.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "settings-tutor",
+      "path": "/settings?section=tutor",
+      "family": "services",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Diana coaching",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 800,
+      "finalPath": "/settings",
+      "screenshot": "desktop-settings-tutor.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "settings-security",
+      "path": "/settings?section=security",
+      "family": "services",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Account security",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 800,
+      "finalPath": "/settings",
+      "screenshot": "desktop-settings-security.png",
+      "pageErrors": [],
+      "assetErrors": []
+    }
+  ],
+  "checks": [
+    {
+      "name": "polish-layout-desktop-more-study",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "more-study",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-desktop-settings-profile",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "settings-profile",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-desktop-settings-tutor",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "settings-tutor",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "polish-layout-desktop-settings-security",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "settings-security",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    }
+  ],
+  "exclusions": [
+    "Real user data and passwords",
+    "Real Google consent, Calendar account linking, mail delivery, provider billing, and AI/media generation",
+    "Subject accuracy, learning outcomes, every assessment/course/group variation, and offline device guarantees"
+  ],
+  "cleanup": {
+    "status": "deleted-and-verified",
+    "syntheticOnly": true
+  },
+  "finishedAt": "2026-11-18T14:58:03.284Z",
+  "totals": {
+    "screens": 4,
+    "screenPasses": 4,
+    "screenFailures": 0,
+    "checks": 4,
+    "checkPasses": 4,
+    "checkFailures": 0
+  }
+}

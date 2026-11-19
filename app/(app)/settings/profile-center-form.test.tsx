@@ -70,3 +70,14 @@ describe("ProfileCenterForm AI consent controls", () => {
       .toBeEnabled();
   });
 });
+
+it("keeps a read-only profile disabled and ignores a forced submit", () => {
+  vi.clearAllMocks();
+  const { container, unmount } = render(<ProfileCenterForm profile={profile()} readOnly />);
+  expect(screen.getByRole("textbox", { name: "Display name" })).toBeDisabled();
+  expect(screen.getByRole("checkbox", { name: "Allow age-appropriate AI coaching" })).toBeDisabled();
+  submitForm(container);
+  expect(saveProfileCenter).not.toHaveBeenCalled();
+  expect(mocks.refresh).not.toHaveBeenCalled();
+  unmount();
+});

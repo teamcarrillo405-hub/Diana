@@ -1,0 +1,19 @@
+Equation reflection
+Destination: Download or school handoff
+
+Specialist artifact summary
+Problem 1: Equation workspace with 3 recorded work fields.
+A bounded machine-readable artifact is attached as diana-canonical-assignment.json.
+
+Problem 1
+Problem: Explain the solution of 3x + 5 = 20.
+
+
+Reasoning:
+Subtracting five keeps both sides equal. Dividing each side by three gives x = 5.
+
+
+
+
+                                                                                      Page 1 of 1
+

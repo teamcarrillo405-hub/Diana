@@ -62,5 +62,5 @@ export default async function NewNotePage({
     ? requestedClassId ?? null
     : null;
 
-  return <StudentShell active="More" version="12" className={styles.root} profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}><main id="main-content" className={styles.main}><Link className={styles.back} href="/notes">Back to Notes</Link><header className={styles.heading}><h1>Add note</h1></header><NoteEditor assignmentId={assignment ?? null} initialClassId={initialClassId} initialMode={initialMode} classCandidates={classCandidates} /></main></StudentShell>;
+  return <StudentShell active="More" scene="library" mode="focus" version="13" className={styles.root} profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}><main id="main-content" className={styles.main}><Link className={styles.back} href="/notes">Back to Notes</Link><header className={styles.heading}><h1>Add note</h1></header><NoteEditor assignmentId={assignment ?? null} initialClassId={initialClassId} initialMode={initialMode} classCandidates={classCandidates} /></main></StudentShell>;
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { CampusWordmark } from "@/components/student-shell/campus-wordmark";
 import type {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
@@ -131,21 +131,7 @@ export function DianaWordmark({
   tight?: boolean;
   tone?: "light" | "dark";
 }) {
-  return (
-    <Image
-      src={tone === "dark"
-        ? "/screendesign/brand/diana-logo-tight-dark-wordmark.png"
-        : "/screendesign/brand/diana-logo-tight-no-shadow.png"}
-      width={950}
-      height={301}
-      alt={alt}
-      className={["sd-source-media", "sd-source-wordmark", className]
-        .filter(Boolean)
-        .join(" ")}
-      priority={tight}
-      unoptimized
-    />
-  );
+  return <span role="img" aria-label={alt}><CampusWordmark className={className} compact={tight} light={tone === "light"} /></span>;
 }
 
 export function DianaMascotMark({

@@ -283,7 +283,7 @@ export function CourseInsight({
           </>
         )}
         <div className={styles.detailTabs}>
-          <SectionTabs key={`${classId}:${section}`} id="course" label="Class sections" initial={section} sections={[
+          <SectionTabs key={`${classId}:${section}`} id="course" label="Class sections" initial={section} queryKey="section" clearQueryKeys={["materials", "rubric"]} sections={[
             { id: "overview", label: "Overview", content: overview },
             { id: "assignments", label: "Assignments", content: assignmentsPanel },
             { id: "notes", label: "Notes", content: notesPanel },

@@ -1,87 +1,57 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-
+import { safeAuthDestination } from "@/lib/auth/entry";
 export function LoginForm() {
-  const router = useRouter();
-  const search = useSearchParams();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [pending, setPending] = useState(false);
+  const router = useRouter(),
+    search = useSearchParams(),
+    submitting = useRef(false);
+  const [email, setEmail] = useState(""),
+    [password, setPassword] = useState("");
+  const [visible, setVisible] = useState(false),
+    [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const next = safeAuthDestination(search.get("next"));
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting.current) return;
+    submitting.current = true;
     setError(null);
     setPending(true);
-    const supabase = createClient();
-    const { error: signinError } = await supabase.auth.signInWithPassword({ email, password });
-    setPending(false);
-    if (signinError) return setError(signinError.message);
-    const destination = search.get("next");
-    const safe = destination?.startsWith("/") && !destination.startsWith("//") && !destination.includes("\\") && !/[\u0000-\u001f]/u.test(destination);
-    router.push(safe && destination ? destination : "/dashboard");
-    router.refresh();
+    try {
+      const {
+        error: signinError
+      } = await createClient().auth.signInWithPassword({
+        email: email.trim(),
+        password
+      });
+      if (signinError) {
+        setError("Your email and password could not be confirmed. Try again or reset your password.");
+        return;
+      }
+      setPassword("");
+      router.push(next);
+      router.refresh();
+    } catch {
+      setError("The connection paused. Your details are still here. Try signing in again.");
+    } finally {
+      submitting.current = false;
+      setPending(false);
+    }
   }
-
-  return (
-    <div>
-      <header className="entry-card-header">
-        <h1>Sign in</h1>
-      </header>
-
-      <form onSubmit={onSubmit} className="entry-form">
-        <div className="sd-field">
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="sd-input"
-          />
-        </div>
-        <div className="sd-field">
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            placeholder="Enter your password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="sd-input"
-          />
-        </div>
-
-        {error && (
-          <div className="entry-error" role="status">
-            {error}
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={pending}
-          className="entry-submit"
-        >
-          {pending ? "Signing in..." : "Sign in"}
-        </button>
-      </form>
-
-      <div className="entry-account">
-        <span>New to Diana?</span>
-        <Link href="/signup">Create an account</Link>
-      </div>
-
-      <p className="entry-assurance">Your work stays private.</p>
-    </div>
-  );
+  return <div>
+    <header className="entry-card-header"><h1>Welcome back</h1><p>Sign in to your campus.</p></header>
+    <form method="post" onSubmit={onSubmit} className="entry-form" aria-busy={pending}>
+      <div className="sd-field"><label htmlFor="email">Email</label><input id="email" type="email" autoComplete="email" required maxLength={320} value={email} onChange={e => setEmail(e.target.value)} /></div>
+      <div className="sd-field"><label htmlFor="password">Password</label><div className="entry-password"><input id="password" type={visible ? "text" : "password"} autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} /><button type="button" aria-label={visible ? "Hide password" : "Show password"} aria-pressed={visible} onClick={() => setVisible(v => !v)}>{visible ? "Hide" : "Show"}</button></div></div>
+      <Link className="entry-inline-link" href={"/forgot-password?next=" + encodeURIComponent(next)}>Forgot password?</Link>
+      {error ? <div className="entry-error" role="alert">{error}</div> : null}
+      <button type="submit" disabled={pending} className="entry-submit">{pending ? "Signing in…" : "Sign in"}</button>
+    </form>
+    <div className="entry-account"><span>New to Diana?</span><Link href="/signup">Create an account</Link></div>
+    <p className="entry-assurance">Your work stays private.</p>
+  </div>;
 }

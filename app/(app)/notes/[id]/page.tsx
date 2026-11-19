@@ -65,7 +65,7 @@ export default async function NoteDetailPage({
   };
 
   return (
-    <NoteDetail
+    <NoteDetail navigationProfile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}
       id={note.id}
       title={note.title}
       bodyText={note.body_text}

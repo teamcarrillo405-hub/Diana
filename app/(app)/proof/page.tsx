@@ -123,7 +123,7 @@ export default async function ProofPage({
       </div>,
     }];
   });
-  return <StudentShell active="More" campus profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}>
+  return <StudentShell active="More" scene="classes" mode="scenic" profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}>
     <main id="main-content" className={styles.main}>
       <Link className={styles.back} href={WORK_RETURN_PATH}><ArrowLeft size={16} aria-hidden="true" />Back to Work</Link>
       <header className={styles.heading}><h1>Record</h1><Link href="/sharing">Sharing</Link></header>

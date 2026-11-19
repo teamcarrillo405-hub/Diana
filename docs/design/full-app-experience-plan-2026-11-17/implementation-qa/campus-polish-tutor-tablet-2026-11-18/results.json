@@ -1,0 +1,133 @@
+{
+  "version": "campus-experience-browser-qa-v1",
+  "startedAt": "2026-11-18T09:24:09.281Z",
+  "base": "http://127.0.0.1:3140",
+  "run": "campus-polish-tutor-tablet-2026-11-18",
+  "scope": "Targeted verification of literal tutor action classes after the CSS Modules selector correction.",
+  "viewports": [
+    {
+      "name": "tablet",
+      "width": 768,
+      "height": 1024
+    }
+  ],
+  "results": [
+    {
+      "slug": "settings-tutor",
+      "path": "/settings?section=tutor",
+      "family": "services",
+      "viewport": "tablet",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 768,
+      "heading": "Diana coaching",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 736,
+      "finalPath": "/settings",
+      "screenshot": "tablet-settings-tutor.png",
+      "pageErrors": [],
+      "assetErrors": []
+    }
+  ],
+  "checks": [
+    {
+      "name": "polish-layout-tablet-settings-tutor",
+      "ok": true,
+      "viewport": "tablet",
+      "slug": "settings-tutor",
+      "headerHeight": 95,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 24,
+          "right": 151.8125,
+          "width": 127.8125,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 161.8125,
+          "right": 288.71875,
+          "width": 126.90625,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 298.71875,
+          "right": 441.984375,
+          "width": 143.265625,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 451.984375,
+          "right": 609.921875,
+          "width": 157.9375,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 619.921875,
+          "right": 744,
+          "width": 124.078125,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "tutor-controls-tablet",
+      "ok": true,
+      "viewport": "tablet",
+      "states": [
+        {
+          "label": "Choose tutor",
+          "height": 52,
+          "size": 24,
+          "mask": "url(\"http://127.0.0.1:3140/assets/today-now/selection-brush-v1.webp\")",
+          "ink": "rgb(255, 255, 255)",
+          "paint": "rgb(36, 86, 59)",
+          "forced": {
+            "mask": "none",
+            "border": 1
+          }
+        },
+        {
+          "label": "Save tutor style",
+          "height": 52,
+          "size": 24,
+          "mask": "url(\"http://127.0.0.1:3140/assets/today-now/selection-brush-v1.webp\")",
+          "ink": "rgb(255, 255, 255)",
+          "paint": "rgb(36, 86, 59)",
+          "forced": {
+            "mask": "none",
+            "border": 1
+          }
+        }
+      ],
+      "syntheticPreferenceSaved": true,
+      "screenshot": "tablet-tutor-style.png",
+      "aiCalls": 0
+    }
+  ],
+  "exclusions": [
+    "Real user data and passwords",
+    "Real Google consent, Calendar account linking, mail delivery, provider billing, and AI/media generation",
+    "Subject accuracy, learning outcomes, every assessment/course/group variation, and offline device guarantees"
+  ],
+  "cleanup": {
+    "status": "deleted-and-verified",
+    "syntheticOnly": true
+  },
+  "finishedAt": "2026-11-18T09:24:16.184Z",
+  "totals": {
+    "screens": 1,
+    "screenPasses": 1,
+    "screenFailures": 0,
+    "checks": 2,
+    "checkPasses": 2,
+    "checkFailures": 0
+  }
+}

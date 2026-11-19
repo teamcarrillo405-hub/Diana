@@ -1,0 +1,173 @@
+[
+  {
+    "title": "Sign in",
+    "family": "Entry",
+    "slug": "sign-in",
+    "images": {
+      "desktop": "sign-in-desktop.webp",
+      "phone": "sign-in-phone.webp"
+    }
+  },
+  {
+    "title": "Choose a new password",
+    "family": "Entry",
+    "slug": "reset-ready",
+    "images": {
+      "desktop": "reset-ready-desktop.webp",
+      "phone": "reset-ready-phone.webp"
+    }
+  },
+  {
+    "title": "Password saved",
+    "family": "Entry",
+    "slug": "reset-saved",
+    "images": {
+      "desktop": "reset-saved-desktop.webp",
+      "phone": "reset-saved-phone.webp"
+    }
+  },
+  {
+    "title": "Create account",
+    "family": "Entry",
+    "slug": "signup",
+    "images": {
+      "desktop": "signup-desktop.webp",
+      "phone": "signup-phone.webp"
+    }
+  },
+  {
+    "title": "Forgot password",
+    "family": "Entry",
+    "slug": "forgot-password",
+    "images": {
+      "desktop": "forgot-password-desktop.webp",
+      "phone": "forgot-password-phone.webp"
+    }
+  },
+  {
+    "title": "Personalize your campus",
+    "family": "Setup",
+    "slug": "onboarding-personalize",
+    "images": {
+      "desktop": "onboarding-personalize-desktop.webp",
+      "phone": "onboarding-personalize-phone.webp"
+    }
+  },
+  {
+    "title": "Connect school services",
+    "family": "Setup",
+    "slug": "onboarding-connect",
+    "images": {
+      "desktop": "onboarding-connect-desktop.webp",
+      "phone": "onboarding-connect-phone.webp"
+    }
+  },
+  {
+    "title": "Lobby",
+    "family": "Primary tabs",
+    "slug": "lobby-now",
+    "images": {
+      "desktop": "lobby-now-desktop.webp",
+      "phone": "lobby-now-phone.webp"
+    }
+  },
+  {
+    "title": "Work",
+    "family": "Primary tabs",
+    "slug": "work",
+    "images": {
+      "desktop": "work-desktop.webp",
+      "phone": "work-phone.webp"
+    }
+  },
+  {
+    "title": "Classes",
+    "family": "Primary tabs",
+    "slug": "classes",
+    "images": {
+      "desktop": "classes-desktop.webp",
+      "phone": "classes-phone.webp"
+    }
+  },
+  {
+    "title": "Calendar",
+    "family": "Primary tabs",
+    "slug": "calendar",
+    "images": {
+      "desktop": "calendar-desktop.webp",
+      "phone": "calendar-phone.webp"
+    }
+  },
+  {
+    "title": "More",
+    "family": "Campus commons",
+    "slug": "more-study",
+    "images": {
+      "desktop": "more-study-desktop.webp",
+      "phone": "more-study-phone.webp"
+    }
+  },
+  {
+    "title": "Notes workspace",
+    "family": "Library",
+    "slug": "note-detail",
+    "images": {
+      "desktop": "note-detail-desktop.webp",
+      "phone": "note-detail-phone.webp"
+    }
+  },
+  {
+    "title": "Quiz menu",
+    "family": "Seminar",
+    "slug": "quiz-hub",
+    "images": {
+      "desktop": "quiz-hub-desktop.webp",
+      "phone": "quiz-hub-phone.webp"
+    }
+  },
+  {
+    "title": "Practice",
+    "family": "Seminar",
+    "slug": "practice",
+    "images": {
+      "desktop": "practice-desktop.webp",
+      "phone": "practice-phone.webp"
+    }
+  },
+  {
+    "title": "Check-in history",
+    "family": "Courtyard",
+    "slug": "check-in-history",
+    "images": {
+      "desktop": "check-in-history-desktop.webp",
+      "phone": "check-in-history-phone.webp"
+    }
+  },
+  {
+    "title": "Settings",
+    "family": "Student services",
+    "slug": "settings-profile",
+    "images": {
+      "desktop": "settings-profile-desktop.webp",
+      "phone": "settings-profile-phone.webp"
+    }
+  },
+  {
+    "title": "Account security",
+    "family": "Student services",
+    "slug": "settings-security",
+    "images": {
+      "desktop": "settings-security-desktop.webp",
+      "phone": "settings-security-phone.webp"
+    }
+  },
+  {
+    "title": "Saved study packs",
+    "family": "System",
+    "slug": "offline",
+    "images": {
+      "desktop": "offline-desktop.webp",
+      "phone": "offline-phone.webp"
+    }
+  }
+]

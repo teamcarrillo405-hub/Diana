@@ -1,0 +1,291 @@
+{
+  "version": 1,
+  "provider": "Higgsfield signed-in website",
+  "model": "Seedream 4.5",
+  "generatedOn": "2026-11-17",
+  "paidCredits": 0,
+  "eligibility": "Manage Account > Subscription lists Seedream 4.5 Unlimited Active; Unlimited mode checked; final control explicitly Unlimited at each submission.",
+  "references": [],
+  "fallback": "CSS neutral campus gradient remains when images are unavailable.",
+  "scenes": [
+    {
+      "id": "entry",
+      "assetId": "835f7694-cd17-4419-94df-78216d7c5b87",
+      "source": {
+        "width": 5120,
+        "height": 2880,
+        "sha256": "3d717a94c27129f017a90a3dcfdc4233c8865dd35aafc7fc0285c1dca451e60d"
+      },
+      "masterCrop": null,
+      "focalX": 0.64,
+      "mobileCrop": {
+        "left": 1837,
+        "top": 0,
+        "width": 1242,
+        "height": 2160
+      },
+      "textSafeRegion": "left 50 percent, behind opaque interface panels",
+      "variants": [
+        {
+          "file": "entry-4k.webp",
+          "width": 3840,
+          "height": 2160,
+          "bytes": 444296,
+          "quality": 80,
+          "sha256": "8c3d5c3caed6b48d1f2dd24551a59e57bc3c7ea180e589b0a6f4fefc90ae1ff3"
+        },
+        {
+          "file": "entry-1920.webp",
+          "width": 1920,
+          "height": 1080,
+          "bytes": 192322,
+          "quality": 80,
+          "sha256": "b26aa1d5c42f5b589453a8499789517489a5fd95143b16052542b9d176552715"
+        },
+        {
+          "file": "entry-mobile.webp",
+          "width": 920,
+          "height": 1600,
+          "bytes": 139958,
+          "quality": 76,
+          "sha256": "42414186da0eabc19605eea24c5f1e3dbb5ef5ef15928ac8ff8ce2b47266ca70"
+        }
+      ]
+    },
+    {
+      "id": "commons",
+      "assetId": "11d2f593-899b-4c85-a0e0-bad210750150",
+      "source": {
+        "width": 5120,
+        "height": 2880,
+        "sha256": "7c080dc344c1775136dde25058bca690bd76eaed97285e051d032ba20d04a52d"
+      },
+      "masterCrop": null,
+      "focalX": 0.62,
+      "mobileCrop": {
+        "left": 1760,
+        "top": 0,
+        "width": 1242,
+        "height": 2160
+      },
+      "textSafeRegion": "left 50 percent, behind opaque interface panels",
+      "variants": [
+        {
+          "file": "commons-4k.webp",
+          "width": 3840,
+          "height": 2160,
+          "bytes": 421752,
+          "quality": 80,
+          "sha256": "c9d162f000700e5d076494d3f2893dad3bdccf379f673b03decb71fa8dc1a2be"
+        },
+        {
+          "file": "commons-1920.webp",
+          "width": 1920,
+          "height": 1080,
+          "bytes": 185962,
+          "quality": 80,
+          "sha256": "b4858f514c72014105d7523ca9c543e515442c7453d4321b050cdcf9a898124d"
+        },
+        {
+          "file": "commons-mobile.webp",
+          "width": 920,
+          "height": 1600,
+          "bytes": 75660,
+          "quality": 80,
+          "sha256": "e4e24e894b61c158b47b12f8f459c12570a8606c005c468b26f5ce0e63c4607f"
+        }
+      ]
+    },
+    {
+      "id": "library",
+      "assetId": "559f2010-7036-402f-bad0-8c07f9530581",
+      "source": {
+        "width": 5120,
+        "height": 2880,
+        "sha256": "3690fe57b37afe360a19a441d2ba6b8e584f5777fd3f4380ecd79f1d8d1bebce"
+      },
+      "masterCrop": null,
+      "focalX": 0.64,
+      "mobileCrop": {
+        "left": 1837,
+        "top": 0,
+        "width": 1242,
+        "height": 2160
+      },
+      "textSafeRegion": "left 50 percent, behind opaque interface panels",
+      "variants": [
+        {
+          "file": "library-4k.webp",
+          "width": 3840,
+          "height": 2160,
+          "bytes": 360018,
+          "quality": 80,
+          "sha256": "e6f9f1726969ee5fbefaecfa9e24641b177b55153c680c3415610f8cfa4e5e21"
+        },
+        {
+          "file": "library-1920.webp",
+          "width": 1920,
+          "height": 1080,
+          "bytes": 156906,
+          "quality": 80,
+          "sha256": "8bdb36e5cff76a5368a1560b5a72f0d2e1846deadb32adddca993b1b78b7f74e"
+        },
+        {
+          "file": "library-mobile.webp",
+          "width": 920,
+          "height": 1600,
+          "bytes": 100118,
+          "quality": 80,
+          "sha256": "9c0c0dccb1c8e6d814d01a0447acd36f12e1042f2b03dce93fe03f21c68bcdbe"
+        }
+      ]
+    },
+    {
+      "id": "seminar",
+      "assetId": "32221ea8-d9a2-4028-b00e-d7855b697018",
+      "source": {
+        "width": 5120,
+        "height": 2880,
+        "sha256": "8489f33eed42f7fc93f254d5cbfb4dd454fde770844ca8babdac4560c200a651"
+      },
+      "masterCrop": {
+        "left": 600,
+        "top": 360,
+        "width": 3840,
+        "height": 2160
+      },
+      "focalX": 0.64,
+      "mobileCrop": {
+        "left": 1837,
+        "top": 0,
+        "width": 1242,
+        "height": 2160
+      },
+      "textSafeRegion": "left 50 percent, behind opaque interface panels",
+      "variants": [
+        {
+          "file": "seminar-4k.webp",
+          "width": 3840,
+          "height": 2160,
+          "bytes": 274308,
+          "quality": 80,
+          "sha256": "4856d0b810fb8fe943565f05c377d35db323b7522f207a62e3ad86c4f80bebf7"
+        },
+        {
+          "file": "seminar-1920.webp",
+          "width": 1920,
+          "height": 1080,
+          "bytes": 115416,
+          "quality": 80,
+          "sha256": "2830dd0ee41c3914b0e280d9ca25402f9c14f9549007d99898cb1294e83c4f49"
+        },
+        {
+          "file": "seminar-mobile.webp",
+          "width": 920,
+          "height": 1600,
+          "bytes": 56336,
+          "quality": 80,
+          "sha256": "f201d23e450dce95c96076b167614f2fe62a5031dcc20152317dc1178447ab13"
+        }
+      ]
+    },
+    {
+      "id": "services",
+      "assetId": "3427d018-d788-4da8-9e03-4604317ce7bf",
+      "source": {
+        "width": 5120,
+        "height": 2880,
+        "sha256": "8cb9bf558ee909e5171ce0ece02f39b0a40fda57169af6c911fb86274a1e8c5e"
+      },
+      "masterCrop": {
+        "left": 800,
+        "top": 360,
+        "width": 3840,
+        "height": 2160
+      },
+      "focalX": 0.6,
+      "mobileCrop": {
+        "left": 1683,
+        "top": 0,
+        "width": 1242,
+        "height": 2160
+      },
+      "textSafeRegion": "left 50 percent, behind opaque interface panels",
+      "variants": [
+        {
+          "file": "services-4k.webp",
+          "width": 3840,
+          "height": 2160,
+          "bytes": 353154,
+          "quality": 80,
+          "sha256": "9a03a22b8142799587d7dfdc6f252faf9243e478a001e44e76c187f96b4fedfb"
+        },
+        {
+          "file": "services-1920.webp",
+          "width": 1920,
+          "height": 1080,
+          "bytes": 147300,
+          "quality": 80,
+          "sha256": "d3df88a3eaa2899fded415d565a121f9c302fe825a2b1830f2be38b046086e7d"
+        },
+        {
+          "file": "services-mobile.webp",
+          "width": 920,
+          "height": 1600,
+          "bytes": 114574,
+          "quality": 80,
+          "sha256": "711c1bf3c4a01d0cd3b64935b69623148f2c4fc47854122ab21f380cd8a6398f"
+        }
+      ]
+    },
+    {
+      "id": "courtyard",
+      "assetId": "d7e046ce-9acf-45b1-991b-e1529390b05a",
+      "source": {
+        "width": 5120,
+        "height": 2880,
+        "sha256": "1af59257d05fd750c230d3a8b3f266c0cbb3837b3f8ac26759477f1017ff3a1c"
+      },
+      "masterCrop": {
+        "left": 1280,
+        "top": 360,
+        "width": 3840,
+        "height": 2160
+      },
+      "focalX": 0.58,
+      "mobileCrop": {
+        "left": 1606,
+        "top": 0,
+        "width": 1242,
+        "height": 2160
+      },
+      "textSafeRegion": "left 50 percent, behind opaque interface panels",
+      "variants": [
+        {
+          "file": "courtyard-4k.webp",
+          "width": 3840,
+          "height": 2160,
+          "bytes": 282044,
+          "quality": 80,
+          "sha256": "be7ada3a745681cbdbbc15e8623709ed85719a5bc603af4963df200dd7abcd7f"
+        },
+        {
+          "file": "courtyard-1920.webp",
+          "width": 1920,
+          "height": 1080,
+          "bytes": 121430,
+          "quality": 80,
+          "sha256": "616b8a943fc9cc2896ff632db549fff89e5f8e5b6c37bd306cc5c916cfa48066"
+        },
+        {
+          "file": "courtyard-mobile.webp",
+          "width": 920,
+          "height": 1600,
+          "bytes": 57186,
+          "quality": 80,
+          "sha256": "c5cd6880a586d1e2ab3b56a54c34119b6cffb64f206861ef44af0860ae7f4bea"
+        }
+      ]
+    }
+  ]
+}

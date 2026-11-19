@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-11-18T07:19:56.211Z",
+  "fixture": "verified tagged synthetic owner",
+  "checks": [
+    {
+      "name": "Exact synthetic delivery previously removed",
+      "ok": true
+    },
+    {
+      "name": "Synthetic share token model verified",
+      "ok": true,
+      "detail": "Previously repaired share matches the private fixture token."
+    },
+    {
+      "name": "Expired synthetic recipient link is unavailable",
+      "ok": true
+    },
+    {
+      "name": "Valid synthetic public summary desktop",
+      "ok": true,
+      "detail": "due count verified: 2; no private work text; width 1440/1440"
+    },
+    {
+      "name": "Valid synthetic public summary phone",
+      "ok": true,
+      "detail": "due count verified: 2; no private work text; width 390/390"
+    },
+    {
+      "name": "Public synthetic summary prints as readable PDF",
+      "ok": true,
+      "detail": "1 page(s), selected aggregate present"
+    }
+  ],
+  "limitations": [
+    "Only selected synthetic aggregate fields were checked; no real recipient, email or account.",
+    "Public share evidence uses a repaired test fixture and does not validate external distribution."
+  ]
+}

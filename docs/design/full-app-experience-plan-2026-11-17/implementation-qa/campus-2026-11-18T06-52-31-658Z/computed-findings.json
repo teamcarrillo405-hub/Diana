@@ -1,0 +1,24 @@
+{
+  "note": {
+    "font": "\"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, sans-serif",
+    "size": "18px",
+    "line": "33.3px",
+    "letter": "0.63px",
+    "word": "1.44px"
+  },
+  "askHeading": {
+    "color": "rgb(24, 33, 38)",
+    "background": "rgb(24, 31, 27)"
+  },
+  "question": {
+    "font": "\"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, sans-serif",
+    "size": "26px",
+    "line": "36.4px",
+    "letter": "0.91px",
+    "word": "2.08px"
+  },
+  "selected": {
+    "color": "rgb(248, 244, 233)",
+    "background": "color(srgb 0.85898 0.879059 0.831843)"
+  }
+}

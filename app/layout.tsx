@@ -10,6 +10,8 @@ import "../tokens.css";
 import "./screendesign.css";
 import "./assignment-workspace.css";
 import "./student-shell.css";
+import "./campus-experience.css";
+import "./campus-accessibility.css";
 import "./canonical-public-landing.css";
 import "./public-landing-v2.css";
 import { AccentProvider } from "@/components/accent-provider";
@@ -24,7 +26,7 @@ const publicSiteStructuredData = {
       "@type": "Organization",
       name: "Diana",
       url: publicSiteUrl,
-      logo: `${publicSiteUrl}/screendesign/brand/diana-logo-no-shadow.png`,
+      logo: `${publicSiteUrl}/icons/diana-icon.svg`,
     },
     {
       "@type": "WebSite",
@@ -79,17 +81,17 @@ export const metadata: Metadata = {
     title: "Diana | Homework Workspace for Students",
     description: "Bring assignments, notes, deadlines, and guided homework help into one workspace.",
     images: [{
-      url: "/assets/dashboard/diana-today-home-screen.png",
-      width: 1900,
-      height: 920,
-      alt: "Diana Today homework workspace",
+      url: "/assets/campus/diana-campus-preview.webp",
+      width: 1440,
+      height: 1000,
+      alt: "Diana Lobby with illustrative student assignments",
     }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Diana | Homework Workspace for Students",
     description: "Bring assignments, notes, deadlines, and guided homework help into one workspace.",
-    images: ["/assets/dashboard/diana-today-home-screen.png"],
+    images: ["/assets/campus/diana-campus-preview.webp"],
   },
   appleWebApp: {
     capable: true,

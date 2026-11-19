@@ -22,7 +22,7 @@ function createWindow() {
     minWidth: 390,
     minHeight: 700,
     title: "Diana",
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#122019",
     show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
@@ -79,8 +79,8 @@ function configureMediaPermissions() {
   });
 }
 
-function renderLaunchError(errorCode, errorDescription, validatedUrl) {
-  const safeUrl = escapeHtml(validatedUrl || appUrl);
+function renderLaunchError(errorCode, errorDescription, _validatedUrl) {
+  const safeUrl = escapeHtml(appUrl);
   const safeDescription = escapeHtml(errorDescription || "The local Diana web app did not respond.");
   return `<!doctype html>
 <html lang="en">
@@ -89,58 +89,43 @@ function renderLaunchError(errorCode, errorDescription, validatedUrl) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Diana desktop</title>
     <style>
+      * { box-sizing: border-box; }
+      summary { min-height:44px;padding-block:12px;cursor:pointer; }
       body {
         margin: 0;
         min-height: 100vh;
         display: grid;
         place-items: center;
-        background: #f8fafc;
-        color: #0f172a;
+        background: #122019;
+        color: #fff8e8;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
       main {
         width: min(560px, calc(100vw - 32px));
-        border: 1px solid #cbd5e1;
-        border-radius: 18px;
-        background: white;
+        border: 1px solid #aca78e88;
+        border-radius: 2px;
+        background: #181f1b;
         padding: 24px;
         box-shadow: 0 18px 48px rgb(15 23 42 / 0.1);
       }
       .eyebrow {
-        color: #6d28d9;
+        color: #f4d69b;
         font-size: 12px;
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
       }
-      h1 { margin: 8px 0 10px; font-size: 26px; line-height: 1.15; }
-      p { line-height: 1.6; color: #475569; }
-      code {
-        display: inline-block;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        background: #f8fafc;
-        padding: 2px 6px;
-        color: #334155;
-      }
-      .note {
-        margin-top: 16px;
-        border: 1px solid #f59e0b55;
-        border-radius: 14px;
-        background: #fef3c7aa;
-        padding: 12px;
-        color: #713f12;
-      }
+      a { display:inline-block;min-height:44px;box-sizing:border-box;padding:12px 20px;background:#355745;color:#fff8e8;text-decoration:none;border:1px solid #aca78e; } a:focus-visible { outline:3px solid #f4d69b;outline-offset:4px; } .wordmark { color:#fff8e8;font:italic 800 44px/1 Georgia,serif;margin:0 0 24px; } h1 { margin: 8px 0 10px; font-size: 26px; line-height: 1.15; }
+      p { line-height: 1.6; color: #c8d2c9; }
     </style>
   </head>
   <body>
     <main>
-      <p class="eyebrow">Diana desktop</p>
-      <h1>The local app is not reachable yet.</h1>
-      <p>Electron tried to open <code>${safeUrl}</code> and received: ${safeDescription} (${errorCode}).</p>
-      <div class="note">
-        Start Diana with <code>npm run electron:dev</code>. That command starts Next first, waits for the app, then opens the desktop shell.
-      </div>
+      <p class="wordmark">DIANA</p><p class="eyebrow">Desktop connection</p>
+      <h1>Let’s reconnect.</h1>
+      <p>Diana could not open your workspace. Check your connection, then try again. Your saved work stays on this device.</p>
+      <p><a href="${safeUrl}">Try again</a></p>
+      <details><summary>Connection details</summary><p>${safeDescription} (${errorCode})</p></details>
     </main>
   </body>
 </html>`;

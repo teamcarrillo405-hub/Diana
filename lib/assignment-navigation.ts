@@ -34,6 +34,6 @@ export function assignmentStatusLabel(status: AssignmentStatus) {
 
 /** Illustration only. Teacher source material is opened inside the workspace. */
 export function subjectArtwork(subject: string): string {
-  const key = /chem/i.test(subject) ? "chemistry" : /bio/i.test(subject) ? "biology" : /math|algebra|geometry|calculus/i.test(subject) ? "math" : /history|social/i.test(subject) ? "history" : /english|literature/i.test(subject) ? "english" : /spanish|french|german|mandarin|language/i.test(subject) ? "languages" : /computer|coding|digital/i.test(subject) ? "computer-science" : /physics/i.test(subject) ? "physics" : /music|band|choir/i.test(subject) ? "music" : /art|design/i.test(subject) ? "art" : /econom/i.test(subject) ? "economics" : null;
-  return key ? `/assets/landing-10k/subjects/${key}.webp` : "/assets/today-now/diana-signature-studio-v1-1678.webp";
+  const key = /chem/i.test(subject) ? "chemistry" : /bio/i.test(subject) ? "biology" : /math|algebra|geometry|calculus|statistics/i.test(subject) ? "math" : /history|social/i.test(subject) ? "history" : /english|literature/i.test(subject) ? "english" : /spanish|french|german|mandarin|language/i.test(subject) ? "languages" : /computer|coding|digital/i.test(subject) ? "computer-science" : /physics/i.test(subject) ? "physics" : /music|band|choir/i.test(subject) ? "music" : /art|design/i.test(subject) ? "art" : /econom/i.test(subject) ? "economics" : null;
+  return key ? `/assets/landing-10k/subjects/${key}.webp` : "/assets/work/college-classroom-1920.webp";
 }

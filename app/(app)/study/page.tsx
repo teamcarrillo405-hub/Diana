@@ -47,7 +47,7 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
   const classQuery = classId ? `?classId=${encodeURIComponent(classId)}` : "";
   const savedItems: CollectionItem[] = (artifacts.data ?? []).map(row=>({id:row.id,title:row.title,meta:`${className(row.classes)} · ${row.artifact_type === "study_guide" ? "Guide" : "Quiz"}`,image:subjectArtwork(className(row.classes)),content:<div key={row.id} className={styles.actions}><Link className={styles.primary} href={`/study-artifacts/${row.id}${classQuery}`}>{row.artifact_type === "study_guide" ? "Open guide" : "Open quiz"}</Link></div>}));
   const unavailable = assignments.error || notes.error || artifacts.error;
-  return <StudentShell active={classId ? "Classes" : "More"} campus={Boolean(classId)} profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}>
+  return <StudentShell active={classId ? "Classes" : "More"} scene={classId ? "classes" : "seminar"} mode="scenic" profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}>
     <main id="main-content" className={styles.main}>
       <header className={styles.heading}><h1>Quiz</h1>{(due.count ?? 0)>0 ? <Link href="/study/recall">Recall · {due.count} ready</Link> : <Link href="/more">Back to More</Link>}</header>
       {classId ? <div className={styles.filters}><Link href={`/classes/${classId}?section=quiz`}>Back to class</Link><Link href="/study">All practice</Link></div> : null}

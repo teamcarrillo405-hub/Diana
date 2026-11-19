@@ -1,0 +1,39 @@
+{
+  "version": "campus-experience-browser-qa-v1",
+  "startedAt": "2026-11-18T07:27:34.988Z",
+  "base": "http://127.0.0.1:3140",
+  "run": "campus-final-cleanup",
+  "scope": "Representative rendered campus states, not exhaustive route or tutoring certification.",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "results": [],
+  "checks": [],
+  "exclusions": [
+    "Real user data and passwords",
+    "Real Google consent, Calendar account linking, mail delivery, provider billing, and AI/media generation",
+    "Subject accuracy, learning outcomes, every assessment/course/group variation, and offline device guarantees"
+  ],
+  "cleanup": {
+    "status": "deleted-and-verified",
+    "syntheticOnly": true
+  },
+  "finishedAt": "2026-11-18T07:27:38.704Z",
+  "totals": {
+    "screens": 0,
+    "screenPasses": 0,
+    "screenFailures": 0,
+    "checks": 0,
+    "checkPasses": 0,
+    "checkFailures": 0
+  }
+}

@@ -43,7 +43,8 @@
 }
 .root.root[data-campus-shell] a { color:var(--campus-ink); }
 .root.root[data-campus-shell] :is(button,a,input,select,textarea,summary):focus-visible { outline-color:var(--campus-focus); }
-.root.root[data-campus-shell] .primary { background:var(--campus-action); color:var(--campus-action-text); border-color:var(--campus-border); box-shadow:none; }
+.root.root[data-campus-shell] .primary { position:relative; isolation:isolate; min-height:56px; padding:12px 30px; border:0; border-radius:0; background:transparent; color:var(--campus-action-text); box-shadow:none; font:italic 800 28px/1.1 var(--campus-display); }
+.root.root[data-campus-shell] .primary::before { position:absolute; z-index:-1; inset:0; content:""; background:var(--campus-action); mask:url('/assets/today-now/selection-brush-v1.webp') center/100% 100% no-repeat; mask-mode:luminance; }
 .root.root[data-campus-shell] .primary:hover { filter:brightness(1.16); }
 .root.root[data-campus-shell] .secondary { background:var(--campus-panel); border-color:var(--campus-rule); color:var(--campus-ink); }
 .root.root[data-campus-shell] .secondary:hover { background:var(--campus-raised); }
@@ -74,4 +75,21 @@
 }
 @media(forced-colors:active) {
   .root.root[data-campus-shell] :is(button,a,input,select,textarea,summary):focus-visible { outline-color:Highlight; }
+  .root.root[data-campus-shell] .primary { background:ButtonFace; color:ButtonText; border:1px solid ButtonText; }
+  .root.root[data-campus-shell] .primary::before { display:none; }
 }
+
+/* All routes share the same campus; focused pages keep scenery outside the paper. */
+.root.root[data-campus-shell] { --campus-action:var(--school-primary,#355745); }
+.root.root .environment { background:radial-gradient(ellipse at top right,#323d2c,#131a16 55%,#111813); }
+.root.root[data-campus-scene] .environment { background:var(--campus-scene-shade,linear-gradient(90deg,#0c1710e8,#0f1a13ba 40%,#111a1573 73%,#161d1766)),var(--campus-scene-floor,linear-gradient(0deg,#101711ee,#111a1440 50%,#111a1410)),var(--campus-scene-image) center/cover no-repeat; }
+/* Campus rooms keep daylight and depth outside their opaque task panels. */
+.root.root[data-campus-scene]:is([data-campus-mode="scenic"],[data-campus-mode="header"]) {
+  --campus-scene-shade:linear-gradient(90deg,#0c171099 0%,#0f1a1366 42%,#111a1514 75%,#161d170a 100%);
+  --campus-scene-floor:linear-gradient(0deg,#10171170 0%,#111a1410 42%,#111a1400 100%);
+}
+.root.root[data-campus-mode="header"] .environment { position:absolute;bottom:auto;height:var(--campus-header-height,420px);mask-image:var(--campus-header-mask,linear-gradient(#000 55%,transparent)); }
+.root.root[data-campus-mode="focus"] .environment { opacity:.38; }
+.root.root[data-campus-mode="document"] .environment,.root.root[data-campus-mode="system"] .environment { background:none; }
+.root.root[data-campus-shell] .secondary,.root.root[data-campus-shell] .muted { font-size:14px; }
+@media(max-width:760px) { .root.root[data-campus-scene] .environment { background-position:center,center,center 46%; } }

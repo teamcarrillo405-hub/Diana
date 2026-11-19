@@ -2,7 +2,7 @@
    License and attribution are stored alongside the self-hosted font. */
 @font-face { font-family:'Diana Campus Slab'; src:url('/assets/fonts/roboto-slab-latin.woff2') format('woff2'); font-style:normal; font-weight:100 900; font-display:swap; }
 .navigation.navigation.navigation.navigation { position:relative; z-index:5; display:flex; align-items:center; gap:clamp(24px,2.5vw,42px); width:100%; min-height:82px; padding:0 32px; border-bottom:1px solid #d5e9df30; background:#0d161ad9; color:#f1f6f3; }
-.navigation.navigation.navigation.navigation .brand { display:flex; flex:none; align-items:center; width:126px; padding:0; border:0; background:none; text-decoration:none; }
+.navigation.navigation.navigation.navigation .brand { display:flex; flex:none; align-items:center; width:126px; min-height:44px; padding:0; border:0; background:none; text-decoration:none; }
 .navigation.navigation.navigation.navigation .brand img { display:block; width:100%; height:auto; }
 .campusWordmark { display:none; }
 /* The campus wordmark keeps the accessible link name. */
@@ -33,27 +33,30 @@
   :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation .campusWordmark { font-size:52px; }
 }
 @media(max-width:1050px) {
-  .navigation.navigation.navigation.navigation { display:grid; grid-template-columns:1fr auto; gap:0 16px; padding:14px 24px 0; }
+  :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation { row-gap:0; }
+  .navigation.navigation.navigation.navigation { display:grid; grid-template-columns:1fr auto; gap:0 16px; padding:6px 24px 0; }
+  :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation .brand { width:120px; }
+  :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation .campusWordmark { font-size:40px; }
   .navigation.navigation.navigation.navigation .actions { grid-column:2; grid-row:1; }
   .navigation.navigation.navigation.navigation nav { grid-column:1 / -1; grid-row:2; justify-content:space-between; width:100%; gap:16px; }
-  .navigation.navigation.navigation.navigation nav a { min-height:52px; font-size:20px; justify-content:center; flex:0 1 auto; min-width:0; }
+  .navigation.navigation.navigation.navigation nav a { min-height:44px; font-size:18px; justify-content:center; flex:1 1 auto; min-width:44px; }
 }
 @media(max-width:760px) {
-  .navigation.navigation.navigation.navigation { padding:12px 18px 0; }
+  .navigation.navigation.navigation.navigation { padding:4px 14px 0; }
   .navigation.navigation.navigation.navigation .brand { width:106px; }
   :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation .brand { width:106px; }
   :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation .campusWordmark { font-size:35px; }
   :global(.dyslexia-font) :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation .campusWordmark { font-size:25px; }
   .navigation.navigation.navigation.navigation nav { gap:8px; }
-  .navigation.navigation.navigation.navigation nav a { min-height:48px; font-size:14px; }
+  .navigation.navigation.navigation.navigation nav a { min-height:44px; font-size:14px; }
   :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation nav a { font-family:'Diana Campus Slab',Georgia,serif; font-size:13px; font-weight:800; letter-spacing:0; }
   .navigation.navigation.navigation.navigation .actions { gap:4px; }
   .navigation.navigation.navigation.navigation .actions a { gap:6px; padding-inline:8px; font-size:12px; }
-  .navigation.navigation.navigation.navigation .actions .account { width:36px; height:36px; min-height:36px; padding:0; }
+  .navigation.navigation.navigation.navigation .actions .account { width:44px; height:44px; min-height:44px; padding:0; }
   .navigation.navigation.navigation.navigation .account > span { font-size:12px; }
 }
 @media(max-width:370px) {
-  .navigation.navigation.navigation.navigation { padding-inline:14px; gap:0 8px; }
+  .navigation.navigation.navigation.navigation { padding-inline:12px; gap:0 8px; }
   .navigation.navigation.navigation.navigation .brand { width:92px; }
   :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation .brand { width:92px; }
   :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation .campusWordmark { font-size:31px; }
@@ -86,8 +89,8 @@
 :global([data-today-dashboard][data-now-studio]) .navigation.navigation.navigation.navigation nav a::after { inset:3px -3px; }
 :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation nav a[aria-current] { color:var(--campus-action-text,var(--school-primary-text,#fff)); }
 @media(max-width:760px) {
-  :global([data-campus-shell]) .navigation.navigation.navigation.navigation nav { gap:0; }
-  :global([data-campus-shell]) .navigation.navigation.navigation.navigation nav a { padding-inline:7px; font-size:clamp(11px,3.25vw,15px); }
+  :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation nav { gap:0; }
+  :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation nav a { padding-inline:4px; font-size:clamp(11px,3vw,14px); white-space:nowrap; }
   :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation nav a::after { inset:5px 0; }
 }
 @media(forced-colors:active) {

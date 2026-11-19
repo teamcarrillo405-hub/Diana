@@ -1,0 +1,114 @@
+{
+  "events": [
+    {
+      "phase": "initial",
+      "event": "request",
+      "method": "GET",
+      "path": "/dashboard?view=check-in",
+      "rsc": null,
+      "prefetch": null,
+      "segmentPrefetch": null,
+      "purpose": null,
+      "serverAction": false
+    },
+    {
+      "phase": "initial",
+      "event": "response",
+      "status": 200,
+      "path": "/dashboard?view=check-in"
+    },
+    {
+      "phase": "initial",
+      "event": "request",
+      "method": "POST",
+      "path": "/dashboard?view=check-in",
+      "rsc": null,
+      "prefetch": null,
+      "segmentPrefetch": null,
+      "purpose": null,
+      "serverAction": true
+    },
+    {
+      "phase": "initial",
+      "event": "response",
+      "status": 200,
+      "path": "/dashboard?view=check-in"
+    },
+    {
+      "phase": "save",
+      "event": "request",
+      "method": "POST",
+      "path": "/dashboard?view=check-in",
+      "rsc": null,
+      "prefetch": null,
+      "segmentPrefetch": null,
+      "purpose": null,
+      "serverAction": true
+    },
+    {
+      "phase": "save",
+      "event": "response",
+      "status": 200,
+      "path": "/dashboard?view=check-in"
+    },
+    {
+      "phase": "save",
+      "event": "request",
+      "method": "GET",
+      "path": "/dashboard",
+      "rsc": "1",
+      "prefetch": null,
+      "segmentPrefetch": null,
+      "purpose": null,
+      "serverAction": false
+    },
+    {
+      "phase": "save",
+      "event": "response",
+      "status": 200,
+      "path": "/dashboard"
+    },
+    {
+      "phase": "native-reload",
+      "event": "request",
+      "method": "GET",
+      "path": "/dashboard",
+      "rsc": null,
+      "prefetch": null,
+      "segmentPrefetch": null,
+      "purpose": null,
+      "serverAction": false
+    },
+    {
+      "phase": "native-reload",
+      "event": "response",
+      "status": 200,
+      "path": "/dashboard"
+    },
+    {
+      "phase": "native-reload",
+      "event": "request",
+      "method": "POST",
+      "path": "/dashboard",
+      "rsc": null,
+      "prefetch": null,
+      "segmentPrefetch": null,
+      "purpose": null,
+      "serverAction": true
+    },
+    {
+      "phase": "native-reload",
+      "event": "response",
+      "status": 200,
+      "path": "/dashboard"
+    }
+  ],
+  "after": {
+    "url": "/dashboard",
+    "mode": "now"
+  },
+  "reloaded": {
+    "url": "/dashboard",
+    "mode": "now"
+  }
+}

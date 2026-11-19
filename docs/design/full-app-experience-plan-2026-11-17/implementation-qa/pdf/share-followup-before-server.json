@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-11-18T07:18:29.457Z",
+  "fixture": "verified tagged synthetic owner",
+  "checks": [
+    {
+      "name": "Exact synthetic delivery object and binding removed",
+      "ok": true
+    },
+    {
+      "name": "Original synthetic share mismatch identified",
+      "ok": true,
+      "detail": "Database trigger derives digest from token; initial fixture set digest alone."
+    },
+    {
+      "name": "Share follow-up completed",
+      "ok": false,
+      "detail": "page.goto: net::ERR_CONNECTION_REFUSED at [url]\nCall log:\n\u001b[2m  - navigating to \"[url] waiting until \"networkidle\"\u001b[22m\n"
+    }
+  ],
+  "limitations": [
+    "Only selected synthetic aggregate fields were checked; no real recipient, email or account.",
+    "Public share evidence uses a repaired test fixture and does not validate external distribution."
+  ]
+}

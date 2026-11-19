@@ -4,6 +4,8 @@ import type { Database } from "@/lib/supabase/types";
 
 // Default-deny: everything requires auth unless explicitly allowed here.
 const PUBLIC_EXACT = new Set([
+  "/forgot-password",
+  "/reset-password",
   "/",
   "/how-it-works",
   "/student-control",

@@ -1,0 +1,18 @@
+.root { width:100%; max-width:650px; color:#f4f1e7; font-family:var(--font-lexend),sans-serif; }
+.root header p { margin:10px 0 0; max-width:56ch; color:#c5d3c4; font-size:14px; line-height:1.7; overflow-wrap:anywhere; }
+.root header .eyebrow { margin:0 0 8px; color:#dfc791; font:600 16px/1.3 var(--font-saira-condensed),sans-serif; text-transform:uppercase; letter-spacing:.08em; }
+.root h2 { margin:0; color:#f4f1e7; font:800 italic 34px/1.1 var(--font-saira-condensed),sans-serif; text-transform:uppercase; }
+.root form { display:grid; gap:16px; margin-top:26px; }
+.field { display:grid; gap:8px; }
+.field label { color:#f4f1e7; font-size:14px; font-weight:500; }
+.root .field input { min-width:0; min-height:48px; width:100%; padding:12px; color:#f4f1e7; background:#172e23; border:1px solid #b4c6ae80; border-radius:2px; font:400 16px/1.4 var(--font-lexend),sans-serif; }
+.root .hint { margin:0; color:#c5d3c4; font-size:14px; line-height:1.6; }
+.root .visibility { width:fit-content; min-height:44px; border:0; background:transparent; color:#f0dcad; font:500 14px var(--font-lexend),sans-serif; padding:8px 0; text-decoration:underline; text-underline-offset:4px; cursor:pointer; }
+.root .submit { position:relative; isolation:isolate; min-height:52px; width:fit-content; min-width:200px; border:0; padding:12px 28px; border-radius:0; background:transparent; color:var(--campus-action-text,#fff); font:800 italic 26px/1.2 var(--font-saira-condensed),sans-serif; text-transform:uppercase; cursor:pointer; }
+.submit::before { content:""; position:absolute; inset:0 -5px; z-index:-1; background:var(--campus-action,#285343); -webkit-mask:url('/assets/today-now/selection-brush-v1.webp') center/100% 100% no-repeat; mask:url('/assets/today-now/selection-brush-v1.webp') center/100% 100% no-repeat; }
+.root .message { margin:0; padding:12px 14px; background:#392f1b; border:1px solid #d1a96980; color:#f2d6aa; font-size:14px; line-height:1.65; }
+.root .message[data-saved] { background:#1b3628; border-color:#a1ba8d66; color:#e2edd8; }
+.recovery { display:inline-flex; align-items:center; min-height:44px; margin-top:16px; color:#f0dcad; font-size:13px; text-underline-offset:4px; }
+.root :is(button,input,a):focus-visible { outline:3px solid #dfc791; outline-offset:4px; }
+.root button:disabled { opacity:.6; cursor:wait; }
+@media(max-width:500px){.root .submit{width:100%;}}

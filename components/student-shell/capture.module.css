@@ -9,7 +9,7 @@
 .root.root.root textarea { min-height:230px; resize:vertical; }
 .root.root.root button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:12px 18px; border:1px solid #b2c4b85c; border-radius:3px; background:#284437; color:#edf3ee; font:500 12px/1.4 var(--font-lexend),sans-serif; box-shadow:none; }
 .root.root.root button:disabled { opacity:.5; cursor:default; }
-.root.root.root button:focus-visible,.root.root.root :is(input,select,textarea):focus-visible { outline:2px solid #c7a8ef; outline-offset:4px; }
+.root.root.root button:focus-visible,.root.root.root :is(input,select,textarea):focus-visible { outline:2px solid var(--campus-focus,#f4d69b); outline-offset:4px; }
 .root.root.root :global(.sd-assignment-upload-tabs), .root.root.root :global(.notes-tab-control) { display:flex; flex-wrap:wrap; gap:22px; border-bottom:1px solid #c1d7c733; padding:0; }
 .root.root.root :global(.sd-assignment-upload-tabs) button,.root.root.root :global(.notes-tab-control) button { padding:12px 0; background:transparent; border:0; border-bottom:3px solid transparent; border-radius:0; color:#bbcebf; }
 .root.root.root :global(.sd-assignment-upload-tabs) [aria-selected="true"], .root.root.root :global(.notes-tab-control) :global(.is-active) { color:#fff; border-bottom-color:#ec2a9b; }
@@ -23,7 +23,7 @@
 .root.root.root :global(.sd-assignment-dropzone) p { color:#b6ccbe; font-size:12px; }
 .root.root.root :global(.sd-assignment-upload-actions), .root.root.root :global(.notes-editor-footer) { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:18px; border-top:1px solid #bdd4c733; padding-top:20px; }
 .root.root.root :global(.sd-assignment-upload-actions) p, .root.root.root :global(.notes-editor-footer) p { display:flex; align-items:center; gap:8px; font-size:11px; color:#adc4b6; max-width:54ch; }
-.root.root.root :global(.sd-assignment-upload-actions) button, .root.root.root :global(.notes-editor-done),.primary { background:var(--school-primary,#7951d5); color:var(--school-primary-text,#fff); border:0; border-radius:3px; min-height:46px; padding:12px 20px; }
+.root.root.root :global(.sd-assignment-upload-actions) button, .root.root.root :global(.notes-editor-done),.primary { background:var(--campus-action,#5b365f); color:var(--school-primary-text,#fff); border:0; border-radius:3px; min-height:46px; padding:12px 20px; }
 .root.root.root :global(.sd-assignment-upload-message) { color:#b5e3c5; font-size:13px; }
 .root.root.root :global(.sd-assignment-upload-message)[data-state="error"], .root.root.root :global(.is-error), .root.root.root :global(.is-warning) { color:#efc880; }
 .root.root.root :global(.notes-audio-capture), .root.root.root :global(.notes-doc-capture) { display:grid; gap:18px; }
@@ -42,7 +42,11 @@
 .root.root.root :global(.sd-inbox-confirm-form) label svg { width:16px; height:16px; }
 .root.root.root :global(.sd-inbox-confirm-form) label:nth-of-type(3) { grid-column:1/-1; max-width:350px; }
 .root.root.root :global(.sd-inbox-confirm-form) button { width:fit-content; }
-.root.root.root :global(.sd-inbox-confirm-form) :global(.sd-inbox-convert) { background:#7951d5; border-color:#a78bdd; }
+.root.root.root :global(.sd-inbox-confirm-form) :global(.sd-inbox-convert) { background:var(--campus-action,#5b365f); border-color:var(--campus-border,#aca78e); }
 .root.root.root :global(.sd-calm-form-error) { grid-column:1/-1; color:#efc880; }
 .root.root.root :global(.sd-inbox-photo) { max-width:100%; max-height:440px; object-fit:contain; margin-bottom:28px; }
 @media(max-width:640px) { .root.root.root :global(.sd-inbox-confirm-form) { grid-template-columns:1fr; }.root.root.root :global(.sd-inbox-confirm-form) label:nth-of-type(3) { max-width:none; } }
+
+.root.root.root :is(input,select,textarea),.root.root.root :global(.sd-inbox-capture-copy) p { font-size:1rem; }
+.root.root.root :global(.sd-inbox-confirm-form) :global(.sd-inbox-convert) { color:var(--campus-action-text); }
+.root.root.root :global(.sd-assignment-upload-actions) button,.root.root.root :global(.notes-editor-done),.primary { color:var(--campus-action-text); }

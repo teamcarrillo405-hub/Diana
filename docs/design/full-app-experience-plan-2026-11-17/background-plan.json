@@ -1,0 +1,266 @@
+{
+  "baseline": "25477d594afdd83a7ac5b91ee9e09ddbadf579cf",
+  "planDate": "2026-11-17",
+  "existing": [
+    {
+      "id": "KEEP-01",
+      "name": "Lobby",
+      "desktop": "public/assets/today-now/diana-campus-with-guide-4k.webp",
+      "mobile": "public/assets/today-now/diana-campus-with-guide-mobile.webp",
+      "decision": "Keep integrated Diana and separate personalized banner",
+      "files": [
+        {
+          "file": "public/assets/today-now/diana-campus-with-guide-4k.webp",
+          "bytes": 585238
+        },
+        {
+          "file": "public/assets/today-now/diana-campus-with-guide-mobile.webp",
+          "bytes": 65014
+        }
+      ]
+    },
+    {
+      "id": "KEEP-02",
+      "name": "Work",
+      "desktop": "public/assets/work/college-classroom-1920.webp",
+      "highDpi": "public/assets/work/college-classroom-4k.webp",
+      "mobile": "public/assets/work/college-classroom-mobile.webp",
+      "decision": "Keep roster; reuse shallow focus headers",
+      "files": [
+        {
+          "file": "public/assets/work/college-classroom-1920.webp",
+          "bytes": 126220
+        },
+        {
+          "file": "public/assets/work/college-classroom-4k.webp",
+          "bytes": 296204
+        },
+        {
+          "file": "public/assets/work/college-classroom-mobile.webp",
+          "bytes": 55156
+        }
+      ]
+    },
+    {
+      "id": "KEEP-03",
+      "name": "Classes",
+      "desktop": "public/assets/classes/academic-hall-1920.webp",
+      "highDpi": "public/assets/classes/academic-hall-4k.webp",
+      "mobile": "public/assets/classes/academic-hall-mobile.webp",
+      "decision": "Keep distinct hall; plain readers and no school logo on class pages",
+      "files": [
+        {
+          "file": "public/assets/classes/academic-hall-1920.webp",
+          "bytes": 156752
+        },
+        {
+          "file": "public/assets/classes/academic-hall-4k.webp",
+          "bytes": 392692
+        },
+        {
+          "file": "public/assets/classes/academic-hall-mobile.webp",
+          "bytes": 89346
+        }
+      ]
+    },
+    {
+      "id": "KEEP-04",
+      "name": "Calendar",
+      "desktop": "public/assets/calendar/campus-planning-1920.webp",
+      "highDpi": "public/assets/calendar/campus-planning-4k.webp",
+      "mobile": "public/assets/calendar/campus-planning-mobile.webp",
+      "decision": "Keep planning room and verified interactions",
+      "files": [
+        {
+          "file": "public/assets/calendar/campus-planning-1920.webp",
+          "bytes": 198954
+        },
+        {
+          "file": "public/assets/calendar/campus-planning-4k.webp",
+          "bytes": 537274
+        },
+        {
+          "file": "public/assets/calendar/campus-planning-mobile.webp",
+          "bytes": 132660
+        }
+      ]
+    }
+  ],
+  "proposed": [
+    {
+      "master": "Native 3840x2160 or larger",
+      "derivatives": [
+        "1920 desktop",
+        "4K/high-DPI",
+        "intentional portrait phone crop",
+        "tiny/local fallback"
+      ],
+      "targetsBytes": {
+        "mobile": 160000,
+        "desktop": 250000,
+        "highDpi": 650000
+      },
+      "branding": "UI overlays only: no generated text, logos, controls or charts",
+      "review": "Desktop/phone composition before a final generation",
+      "generationStatus": "Brief only; not generated or approved",
+      "id": "NEW-01",
+      "name": "Campus Entry",
+      "routes": [
+        "/login",
+        "/signup",
+        "planned forgot/reset/confirmation",
+        "public mastheads"
+      ],
+      "phase": 1,
+      "brief": "Believable student-center entrance/foyer, campus visible outdoors, natural warm daylight, quiet left form area; neutral Diana identity before authentication."
+    },
+    {
+      "master": "Native 3840x2160 or larger",
+      "derivatives": [
+        "1920 desktop",
+        "4K/high-DPI",
+        "intentional portrait phone crop",
+        "tiny/local fallback"
+      ],
+      "targetsBytes": {
+        "mobile": 160000,
+        "desktop": 250000,
+        "highDpi": 650000
+      },
+      "branding": "UI overlays only: no generated text, logos, controls or charts",
+      "review": "Desktop/phone composition before a final generation",
+      "generationStatus": "Brief only; not generated or approved",
+      "id": "NEW-02",
+      "name": "Student Commons",
+      "routes": [
+        "/more",
+        "/search"
+      ],
+      "phase": 2,
+      "brief": "Campus concourse and wayfinding atmosphere; menu-safe left composition, architectural depth at the right perimeter and opaque result panels."
+    },
+    {
+      "master": "Native 3840x2160 or larger",
+      "derivatives": [
+        "1920 desktop",
+        "4K/high-DPI",
+        "intentional portrait phone crop",
+        "tiny/local fallback"
+      ],
+      "targetsBytes": {
+        "mobile": 160000,
+        "desktop": 250000,
+        "highDpi": 650000
+      },
+      "branding": "UI overlays only: no generated text, logos, controls or charts",
+      "review": "Desktop/phone composition before a final generation",
+      "generationStatus": "Brief only; not generated or approved",
+      "id": "NEW-03",
+      "name": "Library Study Alcove",
+      "routes": [
+        "/notes",
+        "/notes/new",
+        "/notes/[id]"
+      ],
+      "phase": 4,
+      "brief": "Bookshelves and reading alcove with consistent campus materials and daylight. Keep working paper/editor opaque."
+    },
+    {
+      "master": "Native 3840x2160 or larger",
+      "derivatives": [
+        "1920 desktop",
+        "4K/high-DPI",
+        "intentional portrait phone crop",
+        "tiny/local fallback"
+      ],
+      "targetsBytes": {
+        "mobile": 160000,
+        "desktop": 250000,
+        "highDpi": 650000
+      },
+      "branding": "UI overlays only: no generated text, logos, controls or charts",
+      "review": "Desktop/phone composition before a final generation",
+      "generationStatus": "Brief only; not generated or approved",
+      "id": "NEW-04",
+      "name": "Quiet Courtyard",
+      "routes": [
+        "/wellness"
+      ],
+      "phase": 6,
+      "brief": "Shaded planted courtyard/terrace from the same campus, low-detail perimeter and plain charts; private self-reports remain the focus."
+    },
+    {
+      "master": "Native 3840x2160 or larger",
+      "derivatives": [
+        "1920 desktop",
+        "4K/high-DPI",
+        "intentional portrait phone crop",
+        "tiny/local fallback"
+      ],
+      "targetsBytes": {
+        "mobile": 160000,
+        "desktop": 250000,
+        "highDpi": 650000
+      },
+      "branding": "UI overlays only: no generated text, logos, controls or charts",
+      "review": "Desktop/phone composition before a final generation",
+      "generationStatus": "Brief only; not generated or approved",
+      "id": "NEW-05",
+      "name": "Seminar and Tutoring Room",
+      "routes": [
+        "/study",
+        "/study/recall",
+        "/study-artifacts/[id]"
+      ],
+      "phase": 5,
+      "brief": "Focused seminar room distinct from Work classroom, neutral teaching wall and table. Questions, cards, guides and results use quiet surfaces."
+    },
+    {
+      "master": "Native 3840x2160 or larger",
+      "derivatives": [
+        "1920 desktop",
+        "4K/high-DPI",
+        "intentional portrait phone crop",
+        "tiny/local fallback"
+      ],
+      "targetsBytes": {
+        "mobile": 160000,
+        "desktop": 250000,
+        "highDpi": 650000
+      },
+      "branding": "UI overlays only: no generated text, logos, controls or charts",
+      "review": "Desktop/phone composition before a final generation",
+      "generationStatus": "Brief only; not generated or approved",
+      "id": "NEW-06",
+      "name": "Student Services and Advising",
+      "routes": [
+        "/onboarding",
+        "/settings",
+        "/me",
+        "/sharing",
+        "staff/access headers"
+      ],
+      "phase": 1,
+      "brief": "Welcoming advising/student-services office, calm form-safe space, consistent wood/stone/light. Reuse subdued headers across account/support sections."
+    }
+  ],
+  "plainFamilies": [
+    "working paper",
+    "source PDF/image/text",
+    "math and graphs",
+    "code",
+    "quiz question and answer",
+    "IEP and permission forms",
+    "reports and PDF exports"
+  ],
+  "graphics": [
+    "canonical wordmark",
+    "favicon/tab icon",
+    "PWA/maskable/shortcut icons",
+    "conditional desktop window icon",
+    "public social preview using sample content"
+  ],
+  "system": "Small guaranteed local/CSS fallback; public-static cache allowlist only",
+  "paidCallsAuthorized": 0,
+  "creditsSpent": 0
+}

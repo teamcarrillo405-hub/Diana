@@ -439,3 +439,6 @@ dialog.zoomed picture img { width: 1500px; min-width: 1500px; max-width: none; }
   .cinematic-landing-root .brand { gap: 5px; }
   .cinematic-landing-root .header nav > .header-cta { padding: 0 6px; font-size: 14px; }
 }
+
+/* Canonical campus wordmark; keep the cinematic story composition. */
+.brand > span:not(.brand-symbol),.footer-brand { font-family:var(--font-saira-condensed),Impact,sans-serif;font-style:italic;font-weight:800;color:#fff8e8; }

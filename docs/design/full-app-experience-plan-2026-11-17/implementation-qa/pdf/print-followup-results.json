@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-11-18T07:25:50.248Z",
+  "fixture": "verified synthetic owner and existing valid share",
+  "checks": [
+    {
+      "name": "Print mode hides the report action",
+      "ok": true,
+      "detail": "{\"print\":true,\"display\":\"none\"}"
+    },
+    {
+      "name": "Print PDF contains summary and no action",
+      "ok": true,
+      "detail": "1 page(s)"
+    },
+    {
+      "name": "First-page text stays within print margins",
+      "ok": true,
+      "detail": "{\"extents\":{\"left\":49.978926,\"top\":39.923539,\"right\":495.881866,\"bottom\":344.929186},\"width\":612,\"height\":792}"
+    }
+  ]
+}

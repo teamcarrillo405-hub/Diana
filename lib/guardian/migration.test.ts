@@ -124,7 +124,7 @@ describe("guardian foundation migration", () => {
   it("leaves the existing under-13 signup and AI denials in place", () => {
     expect(minorInvariant).toContain("Diana accounts require an age of at least 13");
     expect(minorInvariant).toContain("age_bracket <> 'under_13' or consent_ai = false");
-    expect(signupPage).toContain('access.accountAccess !== "allowed"');
+    expect(signupPage).toContain('learnerAccessForAgeBracket(validatedDob.bracket).accountAccess !== "allowed"');
     expect(studentAuth).toContain('eligibility.code === "under_13"');
     expect(studentAuth).toContain("Diana AI is not available for under-13 accounts.");
   });

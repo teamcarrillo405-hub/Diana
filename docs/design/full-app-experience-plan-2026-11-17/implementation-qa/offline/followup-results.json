@@ -1,0 +1,57 @@
+{
+  "generatedAt": "2026-11-18T07:01:48.625Z",
+  "origin": "http://127.0.0.1:57850",
+  "checks": [
+    {
+      "name": "disconnected assignment route uses saved-packs fallback",
+      "pass": true,
+      "detail": "{\"status\":200,\"fromWorker\":true,\"online\":false,\"heading\":\"SAVED STUDY PACKS\",\"href\":\"/assignments\"}"
+    },
+    {
+      "name": "native error escapes inputs 1440",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "native recovery controls 44px 1440",
+      "pass": true,
+      "detail": "{\"retry\":51.59375,\"summary\":45}"
+    },
+    {
+      "name": "native error no horizontal overflow 1440",
+      "pass": true,
+      "detail": "{\"scroll\":1440,\"width\":1440}"
+    },
+    {
+      "name": "native error escapes inputs 390",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "native recovery controls 44px 390",
+      "pass": true,
+      "detail": "{\"retry\":51.59375,\"summary\":45}"
+    },
+    {
+      "name": "native error no horizontal overflow 390",
+      "pass": true,
+      "detail": "{\"scroll\":390,\"width\":390}"
+    },
+    {
+      "name": "native error escapes inputs 320",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "native recovery controls 44px 320",
+      "pass": true,
+      "detail": "{\"retry\":51.59375,\"summary\":45}"
+    },
+    {
+      "name": "native error no horizontal overflow 320",
+      "pass": true,
+      "detail": "{\"scroll\":320,\"width\":320}"
+    }
+  ],
+  "pageErrors": []
+}

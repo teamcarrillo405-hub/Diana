@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { StudentShell } from "@/components/student-shell/student-shell";
 import styles from "@/components/student-shell/collection.module.css";
 import support from "@/components/student-shell/support.module.css";
+import searchStyles from "./search.module.css";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -39,7 +40,7 @@ const SEARCH_DIRECTORY: ReadonlyArray<DesktopSearchItem & { keywords: string }> 
   { key: "tool-notes", title: "Notes", detail: "Class notes and study context", href: "/notes", keywords: "note write photograph" },
   { key: "tool-study", title: "Quiz", detail: "Saved practice and review tools", href: "/study", keywords: "cards study review memorize" },
   { key: "tool-artifacts", title: "Saved practice", detail: "Guides and saved quizzes", href: "/study?view=saved", keywords: "study guide practice generate" },
-  { key: "page-wellness", title: "Wellness", detail: "Energy, sleep, meals, and movement", href: "/wellness", keywords: "health mood exercise" },
+  { key: "page-wellness", title: "Wellness", detail: "Your optional energy, sleep, and activity records", href: "/wellness", keywords: "health mood exercise" },
   { key: "page-sharing", title: "Sharing", detail: "Weekly parent digest", href: "/sharing", keywords: "parent digest share" },
   { key: "page-settings", title: "Settings", detail: "Profile, accessibility, and account", href: "/settings", keywords: "preferences accessibility profile account" },
 ];
@@ -148,10 +149,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
     photoOffsetY: profile?.photo_offset_y,
   };
 
-  return <StudentShell active="More" profile={navProfile}>
+  return <StudentShell active="More" scene="commons" mode="header" className={searchStyles.root} profile={navProfile}>
     <main id="main-content" className={styles.main}>
-      <header className={styles.heading}><h1>Search</h1><Link href="/more">Back to More</Link></header>
-      <form className={support.search} action="/search">
+      <header className={styles.heading}><h1>Search</h1><Link href="/more?section=study">Back to More</Link></header>
+      <form className={`${support.search} ${searchStyles.search}`} action="/search">
         <input name="q" defaultValue={query} placeholder="Class, assignment, note, or tool" aria-label="Search Diana" autoFocus />
         {selectedKind !== "all" ? <input type="hidden" name="type" value={selectedKind} /> : null}
         <button type="submit">Search</button>
@@ -159,11 +160,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
       <nav className={support.filters} aria-label="Search result types">{FILTERS.filter(filter=>filter.value !== "concepts").map(filter=><Link key={filter.value} href={filterHref(filter.value,query)} aria-current={filter.value===selectedKind?"page":undefined}>{filter.label}</Link>)}</nav>
       {unavailable ? <p role="status">Some results could not load. Try searching again.</p> : null}
       <p className={styles.muted} role="status">{query ? `${results.length + directoryMatches.length} matches for “${query}”` : "Recent work"}</p>
-      <div className={support.results}>
+      <div className={`${support.results} ${searchStyles.results}`}>
         {directoryMatches.map(item=><Link key={item.key} href={item.href}><span><strong>{item.title}</strong><small>{item.detail}</small></span><ArrowRight size={18} aria-hidden="true" /></Link>)}
         {results.map(result=><Link key={result.key} href={result.href}><span><small>{result.kind === "Artifact" ? "Saved practice" : result.kind}</small><strong>{result.title}</strong><small>{result.detail}</small></span><ArrowRight size={18} aria-hidden="true" /></Link>)}
       </div>
-      {!results.length && !directoryMatches.length && !unavailable ? <p>No matches. Try a shorter title.</p> : null}
+      {!results.length && !directoryMatches.length && !unavailable ? <p>{query ? "No matches. Try a shorter title." : "Your recent assignments, classes, and notes will appear here."}</p> : null}
     </main>
   </StudentShell>;
 }

@@ -1,0 +1,17 @@
+{
+  "last": "onboarding-connect",
+  "viewport": "phone",
+  "captured": 110,
+  "failures": [
+    {
+      "slug": "auth-callback-empty",
+      "viewport": "desktop",
+      "error": "A local presentation asset returned an error."
+    },
+    {
+      "slug": "auth-callback-empty",
+      "viewport": "phone",
+      "error": "A local presentation asset returned an error."
+    }
+  ]
+}

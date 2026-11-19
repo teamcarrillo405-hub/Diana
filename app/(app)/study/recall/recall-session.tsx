@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { Eye } from "lucide-react";
 
+import type { StudentNavigationProfile } from "@/components/screen-design/student-desktop-nav";
 import { StudentShell } from "@/components/student-shell/student-shell";
 import styles from "@/components/student-shell/quiz.module.css";
 import { TtsButton } from "@/components/tts-button";
@@ -76,6 +77,7 @@ function intervalLabel(
 }
 
 export function RecallSession({
+  navigationProfile,
   queue,
   ttsProvider,
   ttsSpeed,
@@ -83,6 +85,7 @@ export function RecallSession({
   ttsVoice,
   nowIso,
 }: {
+  navigationProfile?: StudentNavigationProfile;
   queue: QueueCard[];
   ttsProvider: TtsProvider;
   ttsSpeed: number;
@@ -129,7 +132,7 @@ export function RecallSession({
     );
   }, [queue]);
 
-  if (!card) return <StudentShell active="More"><main id="main-content" className={styles.main}><Link className={styles.back} href="/study">Back to Quiz</Link><section className={styles.paper}><p>Recall</p><h1>Done for now</h1><p>{queue.length ? 'Your reviews are saved.' : 'No recall questions are due.'}</p><Link href="/study?view=saved">Saved practice</Link></section></main></StudentShell>;
+  if (!card) return <StudentShell profile={navigationProfile} active="More" scene="seminar" mode="focus"><main id="main-content" className={styles.main}><Link className={styles.back} href="/study">Back to Quiz</Link><section className={`${styles.paper} reading-view`}><p>Recall</p><h1>Done for now</h1><p>{queue.length ? 'Your reviews are saved.' : 'No recall questions are due.'}</p><Link href="/study?view=saved">Saved practice</Link></section></main></StudentShell>;
 
   function advance() {
     setFlipped(false);
@@ -182,9 +185,9 @@ export function RecallSession({
     });
   }
 
-  return <StudentShell active="More" className={styles.root} version="12"><main id="main-content" className={styles.main}>
+  return <StudentShell profile={navigationProfile} active="More" scene="seminar" mode="focus" className={styles.root} version="12"><main id="main-content" className={styles.main}>
     <Link className={styles.back} href="/study">Back to Quiz</Link><header className={styles.heading}><h1>Recall</h1><span>{idx+1} of {queue.length}</span></header>
-    <div className={styles.results}><section className={styles.paper}>
+    <div className={styles.results}><section className={`${styles.paper} reading-view`}>
       {showSupport ? <div className={styles.hint}><p>Try reading the question out loud or looking at one source line.</p><button onClick={()=>setShowSupport(false)}>Keep going</button></div> : null}
       <p className={styles.eyebrow}>{card.source_anchor || "Saved practice"}</p><h2>{card.front}</h2>
       <TtsButton text={flipped ? card.back : card.front} label={flipped ? "Read answer" : "Read question"} provider={ttsProvider} speed={ttsSpeed} pitch={ttsPitch} voice={ttsVoice} />

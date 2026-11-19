@@ -97,9 +97,11 @@ function SubmittedAssignmentReceipt({ assignmentId, title, className, status, su
   );
 }
 
-export default async function SubmitPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams?: Promise<{ calendarReturn?: string }> }) {
+export default async function SubmitPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams?: Promise<{ calendarReturn?: string; step?: string }> }) {
   const { id } = await params;
-  const calendarReturn = safeCalendarReturnHref((await searchParams)?.calendarReturn);
+  const requestedView = await searchParams;
+  const calendarReturn = safeCalendarReturnHref(requestedView?.calendarReturn);
+  const initialStep = requestedView?.step === "hand-in" ? "hand-in" : "review";
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -188,7 +190,7 @@ export default async function SubmitPage({ params, searchParams }: { params: Pro
         </header>
 
         <div className={styles.submissionFlow}>
-          <SectionTabs key={id} id="submission" label="Submission" sections={[
+          <SectionTabs key={id} id="submission" label="Submission" initial={initialStep} queryKey="step" sections={[
             {
               id: "review",
               label: "Review",

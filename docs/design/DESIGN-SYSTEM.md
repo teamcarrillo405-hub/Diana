@@ -1,10 +1,12 @@
 # Diana Design System
 
-This is the implementation contract for Diana's shared interface kit. New product surfaces must use these components and the tokens in `app/globals.css` before introducing page-specific styles.
+The current student-facing visual contract is the owner-approved [campus design standard](full-app-experience-plan-2026-11-17/DESIGN-STANDARD.md). It sets the brighter campus scenes, school palette, athletic type, brush selections, accessible work surfaces and responsive behavior. New student pages use the shared StudentShell and campus styles before adding page-specific treatment.
 
-For the complete page anatomy, responsive behavior, and review checklist, use [PAGE-GUIDE.md](PAGE-GUIDE.md). The guide turns the Wellness screen decisions into the standard for every student-facing page.
+[PAGE-GUIDE.md](PAGE-GUIDE.md) remains a supporting anatomy and accessibility checklist. The approved campus standard takes precedence over its older screen-specific color and composition examples.
 
-## Foundations
+## Legacy component foundations
+
+The catalog below documents existing primitives and compatibility names. Its historical cyan/pink tones and HUD examples are not the target appearance for new campus pages; the current campus contract above governs their presentation.
 
 | Layer | Source | Purpose |
 |---|---|---|

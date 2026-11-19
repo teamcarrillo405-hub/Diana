@@ -1,0 +1,11 @@
+# Offline and desktop recovery verification
+
+This is a bounded test against the locally running production build. A disposable Chromium browser used a local reverse proxy in front of the build; the proxy's upstream was cut before offline reload and navigation. The proxy was owned by the test and did not stop or modify the build server. The test did not access any real student account. A locally generated, deliberately invalid synthetic auth session and synthetic IndexedDB study pack exercised owner-scoped offline behavior; all external page requests were blocked.
+
+`browser-proof-pre-native-fix.json` records the production service-worker run with a physically disconnected upstream. It verifies the offline page reload, synthetic pack retrieval and passage search, draft save and reload, cached public campus font and scene, a scan for private cache keys, no displayed percentage, and phone reflow. A separate context without a service worker blocked the scene image to inspect the fallback. Screenshots are in this folder. It also records the native desktop recovery's initial 390 px horizontal overflow before the source fix.
+
+`followup-results.json` records the later focused verification after the native error-page fix: a real assignment URL falls back to Saved study packs with the worker and disconnected upstream; the native error renderer escapes hostile text and uses its configured retry URL; and its retry and details targets are at least 44 px with no horizontal overflow at 320, 390 and 1440 px. The desktop error page was rendered from the current `electron/main.cjs` function in a mocked Electron environment; the native Electron application itself was not launched.
+
+`baseline-before-fix.json` is retained for troubleshooting only. In that earlier experiment Playwright's offline flag did not disconnect the service worker's upstream, so its navigation result is not evidence of a genuine network-disconnected fallback. It also contains earlier timing and expectation checks that were subsequently corrected.
+
+The synthetic pack test does not establish a real account's authentication lifecycle, a physical phone or assistive-technology certification, or production deployment status. The service-worker cache scan is limited to the isolated browser's observed entries; it is not a proof about every possible request.

@@ -1,0 +1,68 @@
+{
+  "version": "auth-recovery-provider-integration-v1",
+  "run": "auth-recovery-2026-11-18T07-06-16-804Z",
+  "base": "http://127.0.0.1:3140",
+  "startedAt": "2026-11-18T07:06:16.805Z",
+  "scope": "Production-mode loopback pages, actual Supabase recovery token verification and password updates on a separate disposable synthetic owner.",
+  "checks": [
+    {
+      "name": "local-production-preflight",
+      "ok": true,
+      "loopback": true,
+      "loginAvailable": true,
+      "noDevelopmentClientObserved": true,
+      "existingProviderConfigurationPresent": true,
+      "serverRecoveryCapability": "verified by actual callback later in this gate"
+    },
+    {
+      "name": "separate-disposable-owner",
+      "ok": true,
+      "separateOwner": true,
+      "ownershipMarkerVerified": true,
+      "mailSent": false
+    },
+    {
+      "name": "desktop-untrusted-session-cannot-reset",
+      "ok": true,
+      "deniedWithoutProof": true,
+      "screenshot": "desktop-reset-unavailable.png"
+    },
+    {
+      "name": "desktop-actual-recovery-token",
+      "ok": false,
+      "code": "unexpected-integration-response",
+      "message": "An unexpected response stopped desktop-actual-recovery-token. No provider diagnostics or credentials are included."
+    }
+  ],
+  "screenshots": [
+    {
+      "viewport": "desktop",
+      "state": "reset-unavailable",
+      "file": "desktop-reset-unavailable.png",
+      "overflow": false,
+      "method": null,
+      "scene": "entry"
+    }
+  ],
+  "cleanup": {
+    "status": "deleted-and-verified",
+    "syntheticOnly": true,
+    "exactOwnershipMarkerChecked": true
+  },
+  "exclusions": [
+    "No reset email was requested or sent. SMTP, email delivery, redirect allow-list and email-template publication remain unverified.",
+    "No real student account, Google connection, tutoring provider, AI service or paid media was used.",
+    "Only passing checks can establish token_hash recovery. The emailed same-browser PKCE round trip is outside this gate."
+  ],
+  "fatal": {
+    "code": "unexpected-integration-response",
+    "message": "An unexpected response stopped desktop-actual-recovery-token. No provider diagnostics or credentials are included."
+  },
+  "finishedAt": "2026-11-18T07:06:39.389Z",
+  "totals": {
+    "checks": 4,
+    "passed": 3,
+    "rejected": 1,
+    "screenshots": 1
+  }
+}
