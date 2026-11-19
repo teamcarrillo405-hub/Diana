@@ -22,7 +22,7 @@ export function DianaRecoveryScreen({
   onRetry,
 }: DianaRecoveryScreenProps) {
   return (
-    <div className={styles.root} data-campus-family="entry" data-campus-mode="system">
+    <div className={styles.root} data-entry-shell data-campus-family="entry" data-campus-mode="system">
       <main id="main-content" className="diana-recovery-screen__panel" role="alert" aria-live="assertive">
         <DianaWordmark tight tone="light" className="diana-recovery-screen__brand" />
         <p className="diana-recovery-screen__eyebrow">{eyebrow}</p>

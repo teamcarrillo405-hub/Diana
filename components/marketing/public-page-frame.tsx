@@ -19,6 +19,6 @@ export function PublicPageFrame({
       <Link className={styles.cta} href="/signup">Create account</Link>
     </header>
     <main id="main-content" className={styles.main}><header className={styles.hero}><h1>{title}</h1>{intro ? <p>{intro}</p> : null}</header><div className={styles.reading}>{children}</div></main>
-    <footer className={styles.footer}><Link href="/">Diana</Link><Link href="/privacy.html">Privacy</Link><Link href="/login">Sign in</Link></footer>
+    <footer className={styles.footer}><Link href="/">Diana</Link><a href="/privacy.html">Privacy</a><Link href="/login">Sign in</Link></footer>
   </div>;
 }

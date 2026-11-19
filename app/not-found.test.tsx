@@ -17,7 +17,7 @@ describe("RootNotFound", () => {
 
     expect(screen.getByRole("heading", { name: "This page is not here anymore." })).toBeVisible();
     expect(screen.getByRole("link", { name: "Back to start" })).toHaveAttribute("href", "/");
-    expect(container.querySelector('[data-campus-family="entry"][data-campus-mode="system"]')).not.toBeNull();
+    expect(container.querySelector('[data-entry-shell][data-campus-family="entry"][data-campus-mode="system"]')).not.toBeNull();
   });
 
   it("renders the public rewrite dynamically for its request nonce", () => {
